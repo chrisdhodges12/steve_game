@@ -8,6 +8,22 @@ let playerX = 0;
 let playerY = 0;
 let playerRadius = 40;
 
+//enemy
+const enemyImg = new Image();
+enemyImg.src = 'assets/shannon.png'
+const enemySize = 100;
+
+const enemy = {
+    x: 0,
+    y: 0,
+    vx: 0,
+    vy: 0,
+    active: false
+};
+
+let enemyTimer = 0;
+let nextEnemyTime = getNextEnemyTime();
+
 //animates player bigger (bouncy)
 let playerScale = 1.2;
 let playerScaleVel = 0.0;        // default scale
@@ -68,6 +84,9 @@ bgMusic.volume = 0.5;       // set to 50% volume
 
 const coinSound = new Audio('assets/sniff.mp3');
 
+const enemyHitSound1 = new Audio('assets/yell1.mp3');
+enemyHitSound1.volume = 0.2;
+
 
 // Track key states for Arrow keys and WASD
 const keys = {
@@ -91,6 +110,47 @@ function init() {
     spawnCoin();
     gameLoop();
 }
+
+function getNextEnemyTime() {
+    return Math.random() * 30;
+}
+
+function spawnEnemy() {
+    enemy.active = true;
+
+    const side = Math.floor(Math.random() * 4); // 0=top, 1=right, 2=bottom, 3=left
+    const speed = 2 + Math.random() * 2;
+
+    let angle;
+
+    switch (side) {
+        case 0: // Top
+            enemy.x = Math.random() * canvas.width;
+            enemy.y = -30;
+            angle = Math.random() * Math.PI / 2 + Math.PI / 4; // 45°–135°
+            break;
+        case 1: // Right
+            enemy.x = canvas.width + 30;
+            enemy.y = Math.random() * canvas.height;
+            angle = Math.random() * Math.PI / 2 + Math.PI * 3/4; // 135°–225°
+            break;
+        case 2: // Bottom
+            enemy.x = Math.random() * canvas.width;
+            enemy.y = canvas.height + 30;
+            angle = Math.random() * Math.PI / 2 + Math.PI * 5/4; // 225°–315°
+            break;
+        case 3: // Left
+            enemy.x = -30;
+            enemy.y = Math.random() * canvas.height;
+            angle = Math.random() * Math.PI / 2 - Math.PI / 4; // -45°–45°
+            break;
+    }
+
+    enemy.vx = Math.cos(angle) * speed;
+    enemy.vy = Math.sin(angle) * speed;
+}
+
+
 
 // Game loop
 function gameLoop() {
@@ -201,6 +261,50 @@ function gameLoop() {
     playerScaleVel += force;
     playerScaleVel *= bounceDamping;
     playerScale += playerScaleVel
+
+
+
+    //ENEMY
+    if (!enemy.active) {
+        enemyTimer++;
+        if (enemyTimer > nextEnemyTime) {
+            spawnEnemy();
+        }
+    } else {
+        enemy.x += enemy.vx;
+        enemy.y += enemy.vy;
+
+        const dx = playerX - enemy.x;
+        const dy = playerY - enemy.y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < playerRadius + enemySize / 2) {
+            // Collision detected
+            enemy.active = false;
+                enemyTimer = 0;
+                nextEnemyTime = getNextEnemyTime();
+
+                enemyHitSound1.currentTime = 0;
+                enemyHitSound1.play();
+        }
+    
+        // Remove if out of screen
+        if (enemy.x < -50 || enemy.x > canvas.width + 50 || enemy.y < -50 || enemy.y > canvas.height + 50) {
+            enemy.active = false;
+            enemyTimer = 0;
+            nextEnemyTime = getNextEnemyTime();
+        }
+    }
+
+    if (enemy.active) {
+        ctx.drawImage(
+            enemyImg,
+            enemy.x - enemySize / 2,
+            enemy.y - enemySize / 2,
+            enemySize,
+            enemySize
+        );
+    }
 
     requestAnimationFrame(gameLoop);
 
