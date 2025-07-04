@@ -1,11 +1,15 @@
 const canvas = document.getElementById('gameCanvas');
 const ctx = canvas.getContext('2d');
 
+//background
+const backgroundImg = new Image();
+backgroundImg.src = 'assets/background.jpg';
+
 // player
 const playerImg = new Image();
 playerImg.src = 'assets/player.png';
-let playerX = 0;
-let playerY = 0;
+let playerX = canvas.width / 2;
+let playerY = canvas.height / 2;
 let playerRadius = 40;
 
 //enemy
@@ -23,6 +27,24 @@ const enemy = {
 
 let enemyTimer = 0;
 let nextEnemyTime = getNextEnemyTime();
+
+//money
+const moneyBagImg = new Image();
+moneyBagImg.src = 'assets/money.png'
+
+const moneyBag = {
+    x: 0,
+    y: 0,
+    active: false,
+    timer: 0
+};
+
+const moneyBagSpawnInterval = 300;  // ~5s at 60fps
+const moneyBagLifetime = 120;       // ~2s at 60fps
+
+let moneyBagSpawnTimer = 0;
+
+let money = 0;
 
 //animates player bigger (bouncy)
 let playerScale = 1.2;
@@ -46,6 +68,7 @@ const playerFrames = [
     { img: new Image(), src: 'assets/player.png' },
     { img: new Image(), src: 'assets/bloodshot.png' },
     { img: new Image(), src: 'assets/eyesClosed.png' },
+    { img: new Image(), src: 'assets/hurt.png'}
 ];
 
 playerFrames.forEach(frame => frame.img.src = frame.src);
@@ -85,7 +108,7 @@ bgMusic.volume = 0.5;       // set to 50% volume
 const coinSound = new Audio('assets/sniff.mp3');
 
 const enemyHitSound1 = new Audio('assets/yell1.mp3');
-enemyHitSound1.volume = 0.2;
+enemyHitSound1.volume = 0.1;
 
 
 // Track key states for Arrow keys and WASD
@@ -154,8 +177,9 @@ function spawnEnemy() {
 
 // Game loop
 function gameLoop() {
-    // Clear the canvas
+    // Clear the canvas and draw bg
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
 
     // Apply physics and movement as usual
     if (keys.ArrowUp || keys.w) velY -= acceleration;
@@ -193,12 +217,16 @@ function gameLoop() {
         velY *= -0.5;
     }
 
-    // Draw the flashy player
+    // Draw the player
     drawPlayer();
 
-
-    // Draw the flashy coin
+    // Draw the coin
     drawCoin();
+
+    //Draw money bag
+    if (moneyBag.active) {
+        ctx.drawImage(moneyBagImg, moneyBag.x - 20, moneyBag.y - 20, 40, 40);
+    }
 
     // Draw burst effect if active
     if (burstActive) {
@@ -215,7 +243,7 @@ function gameLoop() {
         prevCoinX = coinX; // Store the current coin position (before updating)
         prevCoinY = coinY;
         spawnCoin(); // Move coin to a new random position
-        score++; // Increase score
+        score += 100; // Increase score
 
         //play sniff sound
         coinSound.currentTime = 0;
@@ -236,9 +264,14 @@ function gameLoop() {
     }
 
     // Draw the score on the canvas
-    ctx.font = '20px Arial';
-    ctx.fillStyle = 'black';
-    ctx.fillText(`Score: ${score}`, 10, 30);
+    ctx.font = '40px Arial';
+    ctx.fillStyle = 'white';
+    ctx.fillText(`Score: ${score}`, 50, 50);
+
+    //Draw money counter
+    ctx.font = '40px Arial';
+    ctx.fillStyle = 'Green';
+    ctx.fillText(`$: ${money}`, 50, 100);
 
     //Animate the face by index frame
     if (isAnimating) {
@@ -286,8 +319,14 @@ function gameLoop() {
 
                 enemyHitSound1.currentTime = 0;
                 enemyHitSound1.play();
+
+                //show hurt frame
+                currentFrame = 3;
+
+                score -= 200;
+                if (score < 0) score = 0;
         }
-    
+
         // Remove if out of screen
         if (enemy.x < -50 || enemy.x > canvas.width + 50 || enemy.y < -50 || enemy.y > canvas.height + 50) {
             enemy.active = false;
@@ -306,9 +345,43 @@ function gameLoop() {
         );
     }
 
-    requestAnimationFrame(gameLoop);
+    // MONEY BAG LOGIC
+if (!moneyBag.active) {
+    moneyBagSpawnTimer++;
+    if (moneyBagSpawnTimer > moneyBagSpawnInterval) {
+        spawnMoneyBag();
+    }
+} else {
+    moneyBag.timer++;
+    if (moneyBag.timer > moneyBagLifetime) {
+        moneyBag.active = false;
+        moneyBagSpawnTimer = 0;
+    }
+}
 
-    
+if (moneyBag.active) {
+    const dx = playerX - moneyBag.x;
+    const dy = playerY - moneyBag.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    if (distance < playerRadius + 20) {
+        money += 100;
+        moneyBag.active = false;
+        moneyBagSpawnTimer = 0;
+    }
+}
+
+    requestAnimationFrame(gameLoop);
+}
+
+//define spawnMoneyBag function
+function spawnMoneyBag() {
+    moneyBag.active = true;
+    moneyBag.timer = 0;
+
+    const padding = 20;
+    moneyBag.x = Math.random() * (canvas.width - 2 * padding) + padding;
+    moneyBag.y = Math.random() * (canvas.height - 2 * padding) + padding;
 }
 
 // Spawn the coin at a random position
