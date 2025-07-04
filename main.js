@@ -8,6 +8,15 @@ let playerX = 0;
 let playerY = 0;
 let playerRadius = 40;
 
+//animates player bigger (bouncy)
+let playerScale = 1.2;
+let playerScaleVel = 0.0;        // default scale
+const targetScale = 1.0;         // want to reach
+
+const bounceStiffness = 0.3;
+const bounceDamping = 0.1;
+
+
 // Coin variables
 const coinImg = new Image();
 coinImg.src = 'assets/coin.png';
@@ -15,6 +24,8 @@ let coinX = 0;
 let coinY = 0;
 let coinRadius = 15;
 
+
+//animation frames
 const playerFrames = [
     { img: new Image(), src: 'assets/player.png' },
     { img: new Image(), src: 'assets/bloodshot.png' },
@@ -50,6 +61,13 @@ let burstActive = false;
 let burstTimer = 0;
 const maxBurstParticles = 30;
 
+//Audio
+const bgMusic = new Audio('assets/bg.mp3');
+bgMusic.loop = true;        // keep playing
+bgMusic.volume = 0.5;       // set to 50% volume
+
+const coinSound = new Audio('assets/sniff.mp3');
+
 
 // Track key states for Arrow keys and WASD
 const keys = {
@@ -69,6 +87,7 @@ const pulseSpeed = 0.05;  // Speed of pulsing effect
 
 // Initialize game
 function init() {
+    // bgMusic.play();
     spawnCoin();
     gameLoop();
 }
@@ -131,16 +150,29 @@ function gameLoop() {
     const distY = playerY - coinY;
     const distance = Math.sqrt(distX * distX + distY * distY);
 
+    //if coin is collected do this
     if (distance < playerRadius + coinRadius) {
         prevCoinX = coinX; // Store the current coin position (before updating)
         prevCoinY = coinY;
         spawnCoin(); // Move coin to a new random position
         score++; // Increase score
+
+        //play sniff sound
+        coinSound.currentTime = 0;
+        coinSound.play();
+
+        //animate the player
         animationSequence = [1 ,2, 1, 0];
         sequenceIndex = 0;
         currentFrame = animationSequence[sequenceIndex];
         isAnimating = true;
         frameTimer = 0;
+
+        //make player grow
+        playerScale = 1.2;  //grow
+        playerScaleVel = 1.0;  //shrink
+
+
     }
 
     // Draw the score on the canvas
@@ -148,6 +180,7 @@ function gameLoop() {
     ctx.fillStyle = 'black';
     ctx.fillText(`Score: ${score}`, 10, 30);
 
+    //Animate the face by index frame
     if (isAnimating) {
         frameTimer++;
         if (frameTimer > frameInterval) {
@@ -162,6 +195,12 @@ function gameLoop() {
             }
         }
     }
+
+    //animate player growing and shrinking
+    const force = (targetScale - playerScale) * bounceStiffness;
+    playerScaleVel += force;
+    playerScaleVel *= bounceDamping;
+    playerScale += playerScaleVel
 
     requestAnimationFrame(gameLoop);
 
@@ -191,12 +230,14 @@ function drawCoin() {
 function drawPlayer() {
     const img = playerFrames[currentFrame].img;
 
+    const size = playerRadius * 2 * playerScale;
+
     ctx.drawImage(
         img,
-        playerX - playerRadius,
-        playerY - playerRadius,
-        playerRadius * 2,
-        playerRadius * 2
+        playerX - size / 2,
+        playerY - size / 2,
+        size,
+        size
     );
 }
 
