@@ -18,12 +18,25 @@ const moneyBagImg = loadImage("assets/money.png");
 
 // Audio
 const bgMusic = loadAudio("assets/bg.mp3", 0.1, true);
+bgMusic.preload = 'auto';  // Preload background music
+
 const coinSound = loadAudio("assets/sniff.mp3", 0.3);
+coinSound.preload = 'auto';  // Preload coin sound
+
 const enemyHitSound1 = loadAudio("assets/yell1.mp3", 0.05);
+enemyHitSound1.preload = 'auto';  // Preload enemy hit sound
+
 const moneySound = loadAudio("assets/moneySound.mp3", 0.1);
+moneySound.preload = 'auto';  // Preload money sound
+
 const womanScream = loadAudio("assets/womanScream.mp3", 0.1);
+womanScream.preload = 'auto';  // Preload woman scream sound
+
 const truckSound = loadAudio("assets/truck.mp3", 0.1);
+truckSound.preload = 'auto';  // Preload truck sound
+
 const vacuumSound = loadAudio("assets/vacuum.mp3", 0.1);
+vacuumSound.preload = 'auto';  // Preload vacuum sound
 
 // Player
 let playerX = canvas.width / 2;
@@ -300,28 +313,67 @@ function handleJoystickMove(touch) {
   velY = Math.sin(angle) * (dist / maxDist) * maxSpeed;
 }
 
-// Start game immediately
-init();
+//Start the game
+document.getElementById('startBtn').addEventListener('click', () => {
+    // Start background music when the Start button is clicked
+    bgMusic.play();
 
-// Attach upgrade menu listeners safely
+    // Hide the start button once the game starts
+    document.getElementById('startBtn').style.display = 'none';
+
+    // Show the game canvas and UI elements
+    document.getElementById('gameCanvas').style.display = 'block';
+    
+    // Show the upgrades button and joystick
+    document.getElementById('upgradesBtn').style.display = 'block';
+    document.getElementById('joystickArea').style.display = 'block';
+
+    // Initialize the game
+    init();
+});
+
+// Upgrade menu functionality
 const upgradesBtn = document.getElementById("upgradesBtn");
+const upgradeMenu = document.getElementById("upgradeMenu");
+const closeUpgradesBtn = document.getElementById("closeUpgradesBtn");
+
+// Hide upgrade menu by default
+if (upgradeMenu) {
+    upgradeMenu.style.display = "none";
+}
+
+function toggleUpgradeMenu(show) {
+    if (show) {
+        isPaused = true;
+        if (upgradeMenu) upgradeMenu.style.display = "block";
+        if (upgradesBtn) upgradesBtn.style.display = "none";  // Hide Upgrade Button
+    } else {
+        isPaused = false;
+        if (upgradeMenu) upgradeMenu.style.display = "none";
+        if (upgradesBtn) upgradesBtn.style.display = "block";  // Show Upgrade Button
+        // Reset upgrade status
+        const vacuumStatus = document.getElementById("vacuumStatus");
+        const invincibleStatus = document.getElementById("invincibleStatus");
+        if (vacuumStatus) vacuumStatus.textContent = "";
+        if (invincibleStatus) invincibleStatus.textContent = "";
+    }
+}
+
+// Show the upgrade menu when the upgrades button is clicked
 if (upgradesBtn) {
     upgradesBtn.addEventListener("click", () => {
-        isPaused = true;
-        document.getElementById("upgradeMenu").style.display = "block";
+        toggleUpgradeMenu(true);
     });
 }
 
-const closeUpgradesBtn = document.getElementById("closeUpgradesBtn");
+// Close the upgrade menu when the close button is clicked
 if (closeUpgradesBtn) {
     closeUpgradesBtn.addEventListener("click", () => {
-        isPaused = false;
-        document.getElementById("upgradeMenu").style.display = "none";
-        document.getElementById("vacuumStatus").textContent = "";
-        document.getElementById("invincibleStatus").textContent = "";
+        toggleUpgradeMenu(false);
     });
 }
 
+// Vacuum Upgrade Functionality
 const vacuumUpgrade = document.getElementById("vacuumUpgrade");
 if (vacuumUpgrade) {
     vacuumUpgrade.addEventListener("click", () => {
@@ -331,21 +383,22 @@ if (vacuumUpgrade) {
             vacuumActive = true;
             vacuumTimer = 0;
 
-            if (typeof vacuumSound !== 'undefined') {
+            // Play sound
+            if (vacuumSound) {
                 vacuumSound.currentTime = 0;
                 vacuumSound.play();
             }
 
-            isPaused = false;
-            document.getElementById("upgradeMenu").style.display = "none";
+            // Close the menu after upgrading
+            toggleUpgradeMenu(false);
             status.textContent = "";
         } else {
             status.textContent = "Not enough money!";
-            // Leave menu open for the player to choose to close
         }
     });
 }
 
+// Invincible Upgrade Functionality
 const invincibleUpgrade = document.getElementById("invincibleUpgrade");
 if (invincibleUpgrade) {
     invincibleUpgrade.addEventListener("click", () => {
@@ -355,17 +408,17 @@ if (invincibleUpgrade) {
             invincible = true;
             invincibleTimer = 0;
 
-            if (typeof truckSound !== 'undefined') {
+            // Play sound
+            if (truckSound) {
                 truckSound.currentTime = 0;
                 truckSound.play();
             }
 
-            isPaused = false;
-            document.getElementById("upgradeMenu").style.display = "none";
+            // Close the menu after upgrading
+            toggleUpgradeMenu(false);
             status.textContent = "";
         } else {
             status.textContent = "Not enough money!";
-            // Leave menu open for the player to choose to close
         }
     });
 }

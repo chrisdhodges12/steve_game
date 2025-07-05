@@ -7,70 +7,117 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    background-image: url('assets/background.jpg');
+    background-size: cover;
+    background-position: center;
 }
 
-/* Upgrades button */
+/* Upgrade Button - Positioned Top-Right */
+/* Hide the upgrades button by default */
 #upgradesBtn {
     position: absolute;
     top: 20px;
     right: 20px;
-    z-index: 10;
-    opacity: 0.7;
-    padding: 12px 20px;
-    font-size: 18px;
+    padding: 10px 16px;
+    font-size: 16px;
     font-weight: bold;
     color: #fff;
     background: linear-gradient(135deg, #4CAF50, #2E7D32);
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     cursor: pointer;
-    transition: all 0.1s ease;
+    transition: all 0.2s ease;
+    z-index: 101; /* Above upgradeMenu */
 }
 
+/* Show the upgrades button only when it's not hidden */
+#upgradesBtn.hidden {
+    display: none;
+}
+
+/* Hover effect should not move the button */
 #upgradesBtn:hover {
     transform: scale(1.05);
     box-shadow: 0 6px 10px rgba(0,0,0,0.4);
     background: linear-gradient(135deg, #66BB6A, #388E3C);
-    opacity: 1;
 }
 
 #upgradesBtn:active {
     transform: scale(0.98);
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
-
-/* Upgrade menu */
+/* Hide all elements on the start screen */
+#gameCanvas,
+#upgradesBtn,
+#joystickArea,
 #upgradeMenu {
-    display: none;
+    display: none; /* Initially hidden */
+}
+
+/* Start button */
+#startBtn {
     position: absolute;
     top: 50%;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%); /* Ensures button stays centered */
+    padding: 20px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* Hover effect should not move the button */
+#startBtn:hover {
+    transform: translate(-50%, -50%) scale(1.05); /* Scale but keep centered */
+    box-shadow: 0 6px 10px rgba(0,0,0,0.4);
+    background: linear-gradient(135deg, #66BB6A, #388E3C);
+}
+
+#startBtn:active {
+    transform: translate(-50%, -50%) scale(0.98); /* Keep it centered on active click */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Upgrade Menu - Positioned Top-Right */
+#upgradeMenu {
+    display: none; /* Hidden by default */
+    position: absolute;
+    top: 20px;  /* Fixed position from top */
+    right: 20px; /* Fixed position from right */
     background: rgba(40, 40, 40, 0.95);
     border: 3px solid #4CAF50;
     border-radius: 12px;
-    padding: 30px;
-    z-index: 20;
+    padding: 20px;
+    z-index: 100;
     text-align: center;
     color: #fff;
     box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-    width: 90%;
-    max-width: 450px;
+    width: 250px;
+    max-width: 250px;
 }
 
+/* Menu Header */
 #upgradeMenu h2 {
     margin-top: 0;
     font-size: 28px;
     color: #4CAF50;
 }
 
+/* Menu Paragraph */
 #upgradeMenu p {
     font-size: 16px;
     color: #ddd;
     margin: 5px 0;
 }
 
+/* Close Button */
 #closeUpgradesBtn {
     padding: 10px 16px;
     font-size: 16px;
@@ -96,7 +143,7 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Upgrade grid */
+/* Upgrade Grid - Symmetrical Grid Layout */
 .upgrade-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -135,9 +182,8 @@
     min-height: 14px;
 }
 
-/* Joystick */
+/* Game Controls */
 #joystickArea {
-    display: none;
     position: absolute;
     bottom: 30px;
     left: 30px;
@@ -145,12 +191,7 @@
     height: 120px;
     z-index: 10;
     touch-action: none;
-}
-
-@media (pointer: coarse) {
-    #joystickArea {
-        display: block;
-    }
+    display: none; /* Hidden by default */
 }
 
 #joystickBase {
@@ -170,6 +211,13 @@
     top: 35px;
     left: 35px;
     touch-action: none;
+}
+
+/* Make joystick visible only on mobile/touch devices */
+@media (pointer: coarse) {
+    #joystickArea {
+        display: block;
+    }
 }
 
 /* Responsive scaling */
@@ -196,8 +244,12 @@
     }
 
     #upgradeMenu {
-        width: 95%;
+        width: 90%;
+        max-width: 95vw;
+        right: 2.5vw;
+        left: auto;
         padding: 15px;
+        top: 10px;
     }
 
     .upgrade img {
@@ -218,4 +270,8 @@
         top: 30px;
         left: 30px;
     }
+}
+
+#gameContainer.hidden, #joystickArea.hidden, #upgradesBtn.hidden {
+    display: none;
 }
