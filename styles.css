@@ -49,7 +49,8 @@
     text-align: center;
     color: #fff;
     box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-    width: 450px;
+    width: 90%;
+    max-width: 450px;
 }
 
 #upgradeMenu h2 {
@@ -64,7 +65,6 @@
     margin: 5px 0;
 }
 
-/* Close button */
 #closeUpgradesBtn {
     padding: 10px 16px;
     font-size: 16px;
@@ -90,7 +90,6 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-/* Upgrade grid */
 .upgrade-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -123,15 +122,14 @@
     font-size: 14px;
 }
 
-/* Upgrade status text */
 .upgrade-status {
     font-size: 12px;
     color: #f55;
     min-height: 14px;
 }
 
-
 #joystickArea {
+    display: none;
     position: absolute;
     bottom: 30px;
     left: 30px;
@@ -139,17 +137,23 @@
     height: 120px;
     z-index: 10;
     touch-action: none;
-  }
-  
-  #joystickBase {
+}
+
+@media (pointer: coarse) {
+    #joystickArea {
+        display: block;
+    }
+}
+
+#joystickBase {
     width: 100%;
     height: 100%;
     background: rgba(0, 0, 0, 0.3);
     border-radius: 50%;
     position: relative;
-  }
-  
-  #joystickKnob {
+}
+
+#joystickKnob {
     width: 50px;
     height: 50px;
     background: rgba(76, 175, 80, 0.8);
@@ -158,4 +162,46 @@
     top: 35px;
     left: 35px;
     touch-action: none;
-  }
+}
+
+/* Responsive scaling */
+@media (max-width: 600px) {
+    #gameContainer {
+        width: 100%;
+        height: auto;
+    }
+
+    #gameCanvas {
+        width: 100%;
+        height: auto;
+    }
+
+    #upgradesBtn {
+        font-size: 14px;
+        padding: 8px 12px;
+    }
+
+    #upgradeMenu {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .upgrade img {
+        width: 80px;
+        height: 80px;
+    }
+
+    #joystickArea {
+        bottom: 15px;
+        left: 15px;
+        width: 100px;
+        height: 100px;
+    }
+
+    #joystickKnob {
+        width: 40px;
+        height: 40px;
+        top: 30px;
+        left: 30px;
+    }
+}
