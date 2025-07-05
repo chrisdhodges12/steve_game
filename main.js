@@ -56,7 +56,7 @@ let vacuumActive = false, vacuumTimer = 0;
 const vacuumDuration = 8 * 60, vacuumCost = 100;
 
 let invincible = false, invincibleTimer = 0;
-const invincibleDuration = 8 * 60, invincibleCost = 100;
+const invincibleDuration = 9 * 60, invincibleCost = 100;
 
 // Input
 const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, w: false, a: false, s: false, d: false };
@@ -252,10 +252,74 @@ function getNextEnemyTime() {
 // Controls
 window.addEventListener("keydown", e => { if(e.key in keys) keys[e.key]=true; });
 window.addEventListener("keyup", e => { if(e.key in keys) keys[e.key]=false; });
-document.getElementById("upgradesBtn").addEventListener("click", ()=>{isPaused=true;document.getElementById("upgradeMenu").style.display="block";});
-document.getElementById("closeUpgradesBtn").addEventListener("click", ()=>{isPaused=false;document.getElementById("upgradeMenu").style.display="none";});
-document.getElementById("vacuumUpgrade").addEventListener("click", ()=>{ if(money>=vacuumCost){money-=vacuumCost;vacuumActive=true;vacuumTimer=0;vacuumSound.currentTime = 0;vacuumSound.play();isPaused=false;document.getElementById("upgradeMenu").style.display="none";} });
-document.getElementById("invincibleUpgrade").addEventListener("click", ()=>{ if(money>=invincibleCost){money-=invincibleCost;invincible=true;invincibleTimer=0;truckSound.currentTime = 0;truckSound.play();isPaused=false;document.getElementById("upgradeMenu").style.display="none";} });
 
-// Start
+
+// Start game immediately
 init();
+
+// Attach upgrade menu listeners safely
+const upgradesBtn = document.getElementById("upgradesBtn");
+if (upgradesBtn) {
+    upgradesBtn.addEventListener("click", () => {
+        isPaused = true;
+        document.getElementById("upgradeMenu").style.display = "block";
+    });
+}
+
+const closeUpgradesBtn = document.getElementById("closeUpgradesBtn");
+if (closeUpgradesBtn) {
+    closeUpgradesBtn.addEventListener("click", () => {
+        isPaused = false;
+        document.getElementById("upgradeMenu").style.display = "none";
+        document.getElementById("vacuumStatus").textContent = "";
+        document.getElementById("invincibleStatus").textContent = "";
+    });
+}
+
+const vacuumUpgrade = document.getElementById("vacuumUpgrade");
+if (vacuumUpgrade) {
+    vacuumUpgrade.addEventListener("click", () => {
+        const status = document.getElementById("vacuumStatus");
+        if (money >= vacuumCost) {
+            money -= vacuumCost;
+            vacuumActive = true;
+            vacuumTimer = 0;
+
+            if (typeof vacuumSound !== 'undefined') {
+                vacuumSound.currentTime = 0;
+                vacuumSound.play();
+            }
+
+            isPaused = false;
+            document.getElementById("upgradeMenu").style.display = "none";
+            status.textContent = "";
+        } else {
+            status.textContent = "Not enough money!";
+            // Leave menu open for the player to choose to close
+        }
+    });
+}
+
+const invincibleUpgrade = document.getElementById("invincibleUpgrade");
+if (invincibleUpgrade) {
+    invincibleUpgrade.addEventListener("click", () => {
+        const status = document.getElementById("invincibleStatus");
+        if (money >= invincibleCost) {
+            money -= invincibleCost;
+            invincible = true;
+            invincibleTimer = 0;
+
+            if (typeof truckSound !== 'undefined') {
+                truckSound.currentTime = 0;
+                truckSound.play();
+            }
+
+            isPaused = false;
+            document.getElementById("upgradeMenu").style.display = "none";
+            status.textContent = "";
+        } else {
+            status.textContent = "Not enough money!";
+            // Leave menu open for the player to choose to close
+        }
+    });
+}

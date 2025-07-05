@@ -1,3 +1,10 @@
+#gameContainer {
+    position: relative;
+    width: 800px;
+    height: 600px;
+    margin: 0 auto;
+}
+
 #upgradesBtn {
     position: absolute;
     top: 20px;
@@ -28,20 +35,7 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-    #upgradeMenu {
-        display: none;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: white;
-        border: 2px solid black;
-        padding: 20px;
-        z-index: 20;
-        text-align: center;
-    }
-
-    #upgradeMenu {
+#upgradeMenu {
     display: none;
     position: absolute;
     top: 50%;
@@ -55,6 +49,7 @@
     text-align: center;
     color: #fff;
     box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    width: 450px;
 }
 
 #upgradeMenu h2 {
@@ -66,9 +61,10 @@
 #upgradeMenu p {
     font-size: 16px;
     color: #ddd;
-    margin-bottom: 20px;
+    margin: 5px 0;
 }
 
+/* Close button */
 #closeUpgradesBtn {
     padding: 10px 16px;
     font-size: 16px;
@@ -80,6 +76,7 @@
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     cursor: pointer;
     transition: all 0.2s ease;
+    margin-top: 15px;
 }
 
 #closeUpgradesBtn:hover {
@@ -93,9 +90,42 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-#gameContainer {
-    position: relative;
-    width: 800px;
-    height: 600px;
-    margin: 0 auto;
+/* Upgrade grid */
+.upgrade-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 20px;
+    margin: 20px 0;
+}
+
+.upgrade {
+    text-align: center;
+}
+
+.upgrade img {
+    width: 100px;
+    height: 100px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 5px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-radius: 6px;
+}
+
+.upgrade img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.5);
+}
+
+.upgrade p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Upgrade status text */
+.upgrade-status {
+    font-size: 12px;
+    color: #f55;
+    min-height: 14px;
 }
