@@ -12,8 +12,88 @@
     background-position: center;
 }
 
+/* Score and Money Display */
+#scoreMoneyContainer {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 8px 12px;
+    border-radius: 5px;
+    color: white;
+    font-family: Arial, sans-serif;
+    z-index: 1000;
+}
+
+/* Score styling */
+#scoreDisplay {
+    font-size: 32px;
+    font-weight: bold;
+    color: #4CAF50;  /* Green for score */
+}
+
+/* Money styling */
+#moneyDisplay {
+    font-size: 28px;
+    font-weight: bold;
+    color: #FFEB3B;  /* Yellow for money */
+}
+
+/* Start button (centered on the start screen) */
+#startBtn {
+    position: absolute;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px 40px;
+    font-size: 20px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    z-index: 1000;
+}
+
+/* Hover effect */
+#startBtn:hover {
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0 6px 10px rgba(0,0,0,0.4);
+    background: linear-gradient(135deg, #66BB6A, #388E3C);
+}
+
+#startBtn:active {
+    transform: translate(-50%, -50%) scale(0.98);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+/* Rules paragraph - positioned above start button, centered */
+#gameRules {
+    position: absolute;
+    top: 35%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 20px;
+    color: rgb(233, 219, 219);
+    text-align: center;
+    z-index: 1000;
+    font-family: Arial, sans-serif;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+}
+
+/* Hide rules when game starts */
+#gameRules.hidden {
+    display: none;
+}
+
 /* Upgrade Button - Positioned Top-Right */
-/* Hide the upgrades button by default */
 #upgradesBtn {
     position: absolute;
     top: 20px;
@@ -28,7 +108,8 @@
     box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     cursor: pointer;
     transition: all 0.2s ease;
-    z-index: 101; /* Above upgradeMenu */
+    z-index: 101;
+    opacity: 0.8;
 }
 
 /* Show the upgrades button only when it's not hidden */
@@ -47,50 +128,13 @@
     transform: scale(0.98);
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
-/* Hide all elements on the start screen */
-#gameCanvas,
-#upgradesBtn,
-#joystickArea,
-#upgradeMenu {
-    display: none; /* Initially hidden */
-}
 
-/* Start button */
-#startBtn {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%); /* Ensures button stays centered */
-    padding: 20px 40px;
-    font-size: 20px;
-    font-weight: bold;
-    color: white;
-    background: linear-gradient(135deg, #4CAF50, #2E7D32);
-    border: none;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-/* Hover effect should not move the button */
-#startBtn:hover {
-    transform: translate(-50%, -50%) scale(1.05); /* Scale but keep centered */
-    box-shadow: 0 6px 10px rgba(0,0,0,0.4);
-    background: linear-gradient(135deg, #66BB6A, #388E3C);
-}
-
-#startBtn:active {
-    transform: translate(-50%, -50%) scale(0.98); /* Keep it centered on active click */
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-}
-
-/* Upgrade Menu - Positioned Top-Right */
+/* Upgrade Menu */
 #upgradeMenu {
     display: none; /* Hidden by default */
     position: absolute;
-    top: 20px;  /* Fixed position from top */
-    right: 20px; /* Fixed position from right */
+    top: 20px;
+    right: 20px;
     background: rgba(40, 40, 40, 0.95);
     border: 3px solid #4CAF50;
     border-radius: 12px;
@@ -286,3 +330,4 @@
 #gameContainer.hidden, #joystickArea.hidden, #upgradesBtn.hidden {
     display: none !important;
 }
+

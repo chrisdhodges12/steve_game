@@ -8,39 +8,51 @@
   </head>
   <body>
     <div id="gameContainer">
-        <button id="startBtn">Start Game</button>
+      <!-- Start button, visible only before the game starts -->
+      <button id="startBtn">Start Game</button>
+      <p id="gameRules">
+        
+         Use the joystick or arrow keys to collect the snow but don't let Shannon catch you! <br/>Collect money for power-ups!</p>
+
+      <!-- Game canvas -->
       <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-      <button id="upgradesBtn">Upgrades</button>
+      <!-- Score and money display -->
+      <div id="scoreMoneyContainer">
+        <div id="scoreDisplay">Score: 0</div>
+        <div id="moneyDisplay">$: 0</div>
+      </div>
 
+      <!-- Upgrades button -->
+      <button id="upgradesBtn" >PowerUps</button>
+
+      <!-- Joystick area (visible on mobile devices) -->
       <div id="joystickArea">
         <div id="joystickBase">
           <div id="joystickKnob"></div>
         </div>
       </div>
+    </div>
 
-      <div id="upgradeMenu">
-        <h2></h2>
+    <!-- Upgrade menu -->
+    <div id="upgradeMenu">
+      <h2>Upgrades</h2>
 
-        <div class="upgrade-grid">
-          <div class="upgrade">
-            <img id="vacuumUpgrade" src="assets/vacuum.png" alt="Vacuum" />
-            <p>Cost: 100</p>
-            <p id="vacuumStatus" class="upgrade-status"></p>
-          </div>
-
-          <div class="upgrade">
-            <img
-              id="invincibleUpgrade"
-              src="assets/truck.png"
-              alt="Invincible"
-            />
-            <p>Cost: 100</p>
-            <p id="invincibleStatus" class="upgrade-status"></p>
-          </div>
+      <div class="upgrade-grid">
+        <div class="upgrade">
+          <img id="vacuumUpgrade" src="assets/vacuum.png" alt="Vacuum" />
+          <p>Cost: 100</p>
+          <p id="vacuumStatus" class="upgrade-status"></p>
         </div>
-        <button id="closeUpgradesBtn">Close</button>
+
+        <div class="upgrade">
+          <img id="invincibleUpgrade" src="assets/truck.png" alt="Invincible" />
+          <p>Cost: 100</p>
+          <p id="invincibleStatus" class="upgrade-status"></p>
+        </div>
       </div>
+
+      <button id="closeUpgradesBtn">Close</button>
     </div>
 
     <script src="main.js"></script>

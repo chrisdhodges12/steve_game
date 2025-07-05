@@ -224,11 +224,6 @@ function renderGame() {
     if (moneyBag.active) ctx.drawImage(moneyBagImg, moneyBag.x-20, moneyBag.y-20, 40, 40);
     ctx.drawImage(playerFrames[currentFrame], playerX - playerRadius*playerScale, playerY - playerRadius*playerScale, playerRadius*2*playerScale, playerRadius*2*playerScale);
     if (enemy.active) ctx.drawImage(enemyImg, enemy.x-enemySize/2, enemy.y-enemySize/2, enemySize, enemySize);
-
-    ctx.fillStyle = "white"; ctx.font = "40px Arial";
-    ctx.fillText(`Score: ${score}`, 50, 50);
-    ctx.fillStyle = "green";
-    ctx.fillText(`$: ${money}`, 50, 100);
 }
 
 // Helpers
@@ -320,6 +315,9 @@ document.getElementById('startBtn').addEventListener('click', () => {
 
     // Hide the start button once the game starts
     document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('gameRules').style.display = 'none';
+
+
 
     // Show the game canvas and UI elements
     document.getElementById('gameCanvas').style.display = 'block';
@@ -421,4 +419,20 @@ if (invincibleUpgrade) {
             status.textContent = "Not enough money!";
         }
     });
+}
+
+// Update score and money display in the new HTML elements
+function updateScoreMoneyDisplay() {
+    const scoreDisplay = document.getElementById('scoreDisplay');
+    const moneyDisplay = document.getElementById('moneyDisplay');
+    if (scoreDisplay) scoreDisplay.textContent = `Score: ${score}`;
+    if (moneyDisplay) moneyDisplay.textContent = `$: ${money}`;
+}
+
+// Modify gameLoop to update the score and money display
+function gameLoop() {
+    if (!isPaused) updateGameLogic();
+    renderGame();
+    updateScoreMoneyDisplay();
+    requestAnimationFrame(gameLoop);
 }
