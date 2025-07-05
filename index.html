@@ -1,46 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>My Game</title>
-<link rel="stylesheet" href="styles.css" />
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SteveGame</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="gameContainer">
+      <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-<div id="gameContainer">
-  <canvas id="gameCanvas" width="800" height="600"></canvas>
+      <button id="upgradesBtn">Upgrades</button>
 
-  <button id="upgradesBtn">Upgrades</button>
+      <canvas id="gameCanvas" width="800" height="600"></canvas>
 
-  <div id="upgradeMenu">
-    <h2>Upgrades</h2>
+      <button id="upgradesBtn">Upgrades</button>
 
-    <div class="upgrade-grid">
-        <div class="upgrade">
-          <img
-            id="vacuumUpgrade"
-            src="assets/vacuum.png"
-            alt="Vacuum"
-          />
-          <p>Cost: 100</p>
-          <p id="vacuumStatus" class="upgrade-status"></p>
-        </div>
-      
-        <div class="upgrade">
-          <img
-            id="invincibleUpgrade"
-            src="assets/truck.png"
-            alt="Invincible"
-          />
-          <p>Cost: 100</p>
-          <p id="invincibleStatus" class="upgrade-status"></p>
+      <div id="joystickArea">
+        <div id="joystickBase">
+          <div id="joystickKnob"></div>
         </div>
       </div>
-      <button id="closeUpgradesBtn">Close</button>
-    </div>
-</div>
 
-<script src="main.js"></script>
-</body>
+      <div id="upgradeMenu">
+        <h2>Upgrades</h2>
+
+        <div class="upgrade-grid">
+          <div class="upgrade">
+            <img id="vacuumUpgrade" src="assets/vacuum.png" alt="Vacuum" />
+            <p>Cost: 100</p>
+            <p id="vacuumStatus" class="upgrade-status"></p>
+          </div>
+
+          <div class="upgrade">
+            <img
+              id="invincibleUpgrade"
+              src="assets/truck.png"
+              alt="Invincible"
+            />
+            <p>Cost: 100</p>
+            <p id="invincibleStatus" class="upgrade-status"></p>
+          </div>
+        </div>
+        <button id="closeUpgradesBtn">Close</button>
+      </div>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
 </html>

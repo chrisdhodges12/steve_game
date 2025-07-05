@@ -253,6 +253,51 @@ function getNextEnemyTime() {
 window.addEventListener("keydown", e => { if(e.key in keys) keys[e.key]=true; });
 window.addEventListener("keyup", e => { if(e.key in keys) keys[e.key]=false; });
 
+const joystickArea = document.getElementById("joystickArea");
+const joystickKnob = document.getElementById("joystickKnob");
+
+let isDragging = false;
+
+joystickArea.addEventListener("touchstart", (e) => {
+  isDragging = true;
+  handleJoystickMove(e.touches[0]);
+});
+
+joystickArea.addEventListener("touchmove", (e) => {
+  if (!isDragging) return;
+  handleJoystickMove(e.touches[0]);
+});
+
+joystickArea.addEventListener("touchend", () => {
+  isDragging = false;
+  joystickKnob.style.top = "35px";
+  joystickKnob.style.left = "35px";
+  velX = 0;
+  velY = 0;
+});
+
+function handleJoystickMove(touch) {
+  const rect = joystickArea.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2;
+  const centerY = rect.top + rect.height / 2;
+
+  let dx = touch.clientX - centerX;
+  let dy = touch.clientY - centerY;
+
+  const maxDist = 40;
+  const dist = Math.min(Math.sqrt(dx * dx + dy * dy), maxDist);
+
+  const angle = Math.atan2(dy, dx);
+
+  const offsetX = Math.cos(angle) * dist;
+  const offsetY = Math.sin(angle) * dist;
+
+  joystickKnob.style.left = `${35 + offsetX}px`;
+  joystickKnob.style.top = `${35 + offsetY}px`;
+
+  velX = Math.cos(angle) * (dist / maxDist) * maxSpeed;
+  velY = Math.sin(angle) * (dist / maxDist) * maxSpeed;
+}
 
 // Start game immediately
 init();
