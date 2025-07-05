@@ -1,3 +1,4 @@
+/* Base container */
 #gameContainer {
     position: relative;
     width: 800px;
@@ -5,6 +6,7 @@
     margin: 0 auto;
 }
 
+/* Upgrades button */
 #upgradesBtn {
     position: absolute;
     top: 20px;
@@ -35,6 +37,7 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
+/* Upgrade menu */
 #upgradeMenu {
     display: none;
     position: absolute;
@@ -90,6 +93,7 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
+/* Upgrade grid */
 .upgrade-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -128,6 +132,7 @@
     min-height: 14px;
 }
 
+/* Joystick */
 #joystickArea {
     display: none;
     position: absolute;
@@ -174,6 +179,7 @@
     #gameCanvas {
         width: 100%;
         height: auto;
+        display: block;
     }
 
     #upgradesBtn {
