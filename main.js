@@ -17,13 +17,13 @@ const coinImg = loadImage("assets/coin.png");
 const moneyBagImg = loadImage("assets/money.png");
 
 // Audio
-const bgMusic = loadAudio("assets/bg.mp3", 0.5, true);
-const coinSound = loadAudio("assets/sniff.mp3", 0.7);
-const enemyHitSound1 = loadAudio("assets/yell1.mp3", 0.1);
-const moneySound = loadAudio("assets/moneySound.mp3", 0.7);
-const womanScream = loadAudio("assets/womanScream.mp3", 0.4);
-const truckSound = loadAudio("assets/truck.mp3", 0.3);
-const vacuumSound = loadAudio("assets/vacuum.mp3", 0.3);
+const bgMusic = loadAudio("assets/bg.mp3", 0.1, true);
+const coinSound = loadAudio("assets/sniff.mp3", 0.3);
+const enemyHitSound1 = loadAudio("assets/yell1.mp3", 0.05);
+const moneySound = loadAudio("assets/moneySound.mp3", 0.1);
+const womanScream = loadAudio("assets/womanScream.mp3", 0.1);
+const truckSound = loadAudio("assets/truck.mp3", 0.1);
+const vacuumSound = loadAudio("assets/vacuum.mp3", 0.1);
 
 // Player
 let playerX = canvas.width / 2;
@@ -65,6 +65,7 @@ const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: f
 function init() {
     spawnCoin();
     gameLoop();
+    bgMusic.play();
 }
 
 // Utility functions
@@ -74,7 +75,7 @@ function loadImage(src) {
     return img;
 }
 
-function loadAudio(src, volume = 1, loop = false) {
+function loadAudio(src, volume = 0.5, loop = false) {
     const audio = new Audio(src);
     audio.volume = volume;
     audio.loop = loop;
