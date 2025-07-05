@@ -4,6 +4,9 @@
     width: 800px;
     height: 600px;
     margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Upgrades button */
@@ -170,6 +173,12 @@
 }
 
 /* Responsive scaling */
+#gameCanvas {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
 @media (max-width: 600px) {
     #gameContainer {
         width: 100%;
@@ -179,7 +188,6 @@
     #gameCanvas {
         width: 100%;
         height: auto;
-        display: block;
     }
 
     #upgradesBtn {
