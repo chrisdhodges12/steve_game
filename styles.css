@@ -191,7 +191,7 @@
     height: 120px;
     z-index: 10;
     touch-action: none;
-    display: none; /* Hidden by default */
+    display: none; /* Always hidden by default (start screen and desktop) */
 }
 
 #joystickBase {
@@ -213,10 +213,21 @@
     touch-action: none;
 }
 
-/* Make joystick visible only on mobile/touch devices */
+/* Show joystick only on mobile/touch devices during gameplay */
+/* Only display joystickArea when not .hidden and on touch devices */
 @media (pointer: coarse) {
     #joystickArea {
         display: block;
+    }
+    #joystickArea.hidden {
+        display: none !important;
+    }
+}
+
+/* Hide joystick on desktop/laptop devices (fine pointer) */
+@media (pointer: fine) {
+    #joystickArea {
+        display: none !important;
     }
 }
 
@@ -273,5 +284,5 @@
 }
 
 #gameContainer.hidden, #joystickArea.hidden, #upgradesBtn.hidden {
-    display: none;
+    display: none !important;
 }

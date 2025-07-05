@@ -17,19 +17,19 @@ const coinImg = loadImage("assets/coin.png");
 const moneyBagImg = loadImage("assets/money.png");
 
 // Audio
-const bgMusic = loadAudio("assets/bg.mp3", 0.1, true);
+const bgMusic = loadAudio("assets/bg.mp3", 0.2, true);
 bgMusic.preload = 'auto';  // Preload background music
 
-const coinSound = loadAudio("assets/sniff.mp3", 0.3);
+const coinSound = loadAudio("assets/sniff.mp3", 0.5);
 coinSound.preload = 'auto';  // Preload coin sound
 
-const enemyHitSound1 = loadAudio("assets/yell1.mp3", 0.05);
+const enemyHitSound1 = loadAudio("assets/yell1.mp3", 0.02);
 enemyHitSound1.preload = 'auto';  // Preload enemy hit sound
 
-const moneySound = loadAudio("assets/moneySound.mp3", 0.1);
+const moneySound = loadAudio("assets/moneySound.mp3", 0.4);
 moneySound.preload = 'auto';  // Preload money sound
 
-const womanScream = loadAudio("assets/womanScream.mp3", 0.1);
+const womanScream = loadAudio("assets/womanScream.mp3", 0.05);
 womanScream.preload = 'auto';  // Preload woman scream sound
 
 const truckSound = loadAudio("assets/truck.mp3", 0.1);
