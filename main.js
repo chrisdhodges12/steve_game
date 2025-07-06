@@ -1,10 +1,11 @@
+// === DOM & Canvas ===
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
-// Game state
+// === Game State ===
 let isPaused = false;
 
-// Assets
+// === Assets ===
 const backgroundImg = loadImage("assets/background.jpg");
 const playerFrames = [
     loadImage("assets/player.png"),
@@ -17,29 +18,20 @@ const enemyImg = loadImage("assets/shannon.png");
 const coinImg = loadImage("assets/coin.png");
 const moneyBagImg = loadImage("assets/money.png");
 
-// Audio
+// === Audio ===
 const bgMusic = loadAudio("assets/bg.mp3", 0.2, true);
-bgMusic.preload = 'auto';  // Preload background music
-
 const coinSound = loadAudio("assets/sniff.mp3", 0.3);
-coinSound.preload = 'auto';  // Preload coin sound
-
 const enemyHitSound1 = loadAudio("assets/yell1.mp3", 0.3);
-enemyHitSound1.preload = 'auto';  // Preload enemy hit sound
-
 const moneySound = loadAudio("assets/moneySound.mp3", 0.4);
-moneySound.preload = 'auto';  // Preload money sound
-
-const womanScream = loadAudio("assets/womanScream.mp3", 0.1);
-womanScream.preload = 'auto';  // Preload woman scream sound
-
+const womanScream = loadAudio("assets/womanScream.mp3", 0.2);
 const truckSound = loadAudio("assets/truck.mp3", 0.3);
-truckSound.preload = 'auto';  // Preload truck sound
+const vacuumSound = loadAudio("assets/vacuum.mp3", 0.1);
 
-const vacuumSound = loadAudio("assets/vacuum.mp3", 0.2);
-vacuumSound.preload = 'auto';  // Preload vacuum sound
+[bgMusic, coinSound, enemyHitSound1, moneySound, womanScream, truckSound, vacuumSound].forEach(audio => {
+    if (audio) audio.preload = 'auto';
+});
 
-// Player
+// === Player State ===
 let playerX = canvas.width / 2;
 let playerY = canvas.height / 2;
 let playerRadius = 40;
@@ -51,35 +43,34 @@ let score = 0, money = 0;
 let animationSequence = [], sequenceIndex = 0, frameTimer = 0, isAnimating = false;
 const frameInterval = 20;
 
-// Coin
+// === Coin State ===
 let coinX = 0, coinY = 0, coinTimer = 0;
 const coinRadius = 15, coinLifetime = 4 * 60;
 
-// Money bag
+// === Money Bag State ===
 const moneyBag = { x: 0, y: 0, active: false, timer: 0 };
 const moneyBagSpawnInterval = 200, moneyBagLifetime = 100;
 let moneyBagSpawnTimer = 0;
 
-// Enemy
+// === Enemy State ===
 const enemy = { x: 0, y: 0, vx: 0, vy: 0, active: false };
 const enemySize = 100;
 let enemyTimer = 0, nextEnemyTime = getNextEnemyTime();
 
-// Upgrades
+// === Upgrades State ===
 let vacuumActive = false, vacuumTimer = 0;
 const vacuumDuration = 8 * 60, vacuumCost = 100;
-
 let invincible = false, invincibleTimer = 0;
 const invincibleDuration = 9 * 60, invincibleCost = 100;
 
-// Input
+// === Input State ===
 const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, w: false, a: false, s: false, d: false };
 
 // Init
 function init() {
     spawnCoin();
     gameLoop();
-    bgMusic.play();
+    playSound(bgMusic);
 }
 
 // Utility functions
@@ -96,11 +87,10 @@ function loadAudio(src, volume = 0.5, loop = false) {
     return audio;
 }
 
-// Game loop
-function gameLoop() {
-    if (!isPaused) updateGameLogic();
-    renderGame();
-    requestAnimationFrame(gameLoop);
+function playSound(audio) {
+    if (!audio) return;
+    audio.currentTime = 0;
+    audio.play();
 }
 
 function updateGameLogic() {
@@ -141,13 +131,11 @@ function updateCoin() {
     }
 
     if (dist < playerRadius + coinRadius) {
-        spawnCoin(); score += 100; coinSound.play();
-        animatePlayer([1,2,1,0]);
-        playerScale = 1.6; playerScaleVel = 1.0;
+        spawnCoin(); score += 100; playSound(coinSound);
+        animateBounce();
     }
 
-    const force = (targetScale - playerScale) * bounceStiffness;
-    playerScaleVel += force; playerScaleVel *= bounceDamping; playerScale += playerScaleVel;
+    updatePlayerScaleBounce();
 }
 
 function animatePlayer(seq) {
@@ -155,22 +143,30 @@ function animatePlayer(seq) {
     isAnimating = true; frameTimer = 0;
 }
 
+function animateBounce() {
+    animatePlayer([1,2,1,0]);
+    playerScale = 1.6;
+    playerScaleVel = 1.0;
+}
+
+function updatePlayerScaleBounce() {
+    const force = (targetScale - playerScale) * bounceStiffness;
+    playerScaleVel += force;
+    playerScaleVel *= bounceDamping;
+    playerScale += playerScaleVel;
+}
+
 function updateMoneyBag() {
     if (!moneyBag.active) {
         if (++moneyBagSpawnTimer > moneyBagSpawnInterval) spawnMoneyBag();
-    } else {
-        if (++moneyBag.timer > moneyBagLifetime) {
-            moneyBag.active = false; moneyBagSpawnTimer = 0;
-        }
+    } else if (++moneyBag.timer > moneyBagLifetime) {
+        moneyBag.active = false; moneyBagSpawnTimer = 0;
     }
-
     if (moneyBag.active) {
         const dx = playerX - moneyBag.x, dy = playerY - moneyBag.y, dist = Math.hypot(dx, dy);
         if (dist < playerRadius + 20) {
-            money += 100; score += 100; moneySound.play();
-            // Always trigger grow/bounce animation as with coin
-            animatePlayer([1,2,1,0]);
-            playerScale = 1.6; playerScaleVel = 1.0;
+            money += 100; score += 100; playSound(moneySound);
+            animateBounce();
             moneyBag.active = false; moneyBagSpawnTimer = 0;
         }
     }
@@ -200,18 +196,14 @@ function updateEnemy() {
     const dxPlayer = playerX - enemy.x, dyPlayer = playerY - enemy.y, distPlayer = Math.hypot(dxPlayer, dyPlayer);
     if (distPlayer < playerRadius + enemySize/2) {
         enemy.active = false; enemyTimer = 0; nextEnemyTime = getNextEnemyTime();
-
         if (invincible) {
-            womanScream.play(); score += 250;
-            // Trigger grow/bounce animation as with coin or money bag
-            animatePlayer([1,2,1,0]);
-            playerScale = 1.6; playerScaleVel = 1.0;
+            playSound(womanScream); score += 250;
+            animateBounce();
         } else {
-            enemyHitSound1.play(); currentFrame = 3;
+            playSound(enemyHitSound1); currentFrame = 3;
             score -= 200; if (score < 0) score = 0;
         }
     }
-
     if (enemy.x < -50 || enemy.x > canvas.width+50 || enemy.y < -50 || enemy.y > canvas.height+50) {
         enemy.active = false; enemyTimer = 0; nextEnemyTime = getNextEnemyTime();
     }
@@ -230,11 +222,10 @@ function renderGame() {
     ctx.drawImage(coinImg, coinX - coinRadius, coinY - coinRadius, coinRadius*2, coinRadius*2);
     if (moneyBag.active) ctx.drawImage(moneyBagImg, moneyBag.x-20, moneyBag.y-20, 40, 40);
     // Draw player: truckImg when invincible, otherwise normal player frame
-    if (invincible) {
+    if (invincible)
         ctx.drawImage(truckImg, playerX - playerRadius*playerScale, playerY - playerRadius*playerScale, playerRadius*2*playerScale, playerRadius*2*playerScale);
-    } else {
+    else
         ctx.drawImage(playerFrames[currentFrame], playerX - playerRadius*playerScale, playerY - playerRadius*playerScale, playerRadius*2*playerScale, playerRadius*2*playerScale);
-    }
     if (enemy.active) ctx.drawImage(enemyImg, enemy.x-enemySize/2, enemy.y-enemySize/2, enemySize, enemySize);
 }
 
@@ -291,8 +282,7 @@ joystickArea.addEventListener("touchmove", (e) => {
 
 joystickArea.addEventListener("touchend", () => {
   isDragging = false;
-  joystickKnob.style.top = "35px";
-  joystickKnob.style.left = "35px";
+  setJoystickKnob(35, 35);
   velX = 0;
   velY = 0;
 });
@@ -313,31 +303,32 @@ function handleJoystickMove(touch) {
   const offsetX = Math.cos(angle) * dist;
   const offsetY = Math.sin(angle) * dist;
 
-  joystickKnob.style.left = `${35 + offsetX}px`;
-  joystickKnob.style.top = `${35 + offsetY}px`;
+  setJoystickKnob(35 + offsetX, 35 + offsetY);
 
   velX = Math.cos(angle) * (dist / maxDist) * maxSpeed;
   velY = Math.sin(angle) * (dist / maxDist) * maxSpeed;
 }
 
-//Start the game
+function setJoystickKnob(left, top) {
+    if (joystickKnob) {
+        joystickKnob.style.left = `${left}px`;
+        joystickKnob.style.top = `${top}px`;
+    }
+}
+
+// DOM helpers for UI show/hide
+function showElem(id, show = true) {
+    const elem = document.getElementById(id);
+    if (elem) elem.style.display = show ? 'block' : 'none';
+}
+
+// Start the game
 document.getElementById('startBtn').addEventListener('click', () => {
-    // Start background music when the Start button is clicked
-    bgMusic.play();
-
-    // Hide the start button once the game starts
-    document.getElementById('startBtn').style.display = 'none';
-
-
-
-    // Show the game canvas and UI elements
-    document.getElementById('gameCanvas').style.display = 'block';
-    
-    // Show the upgrades button and joystick
-    document.getElementById('upgradesBtn').style.display = 'block';
-    document.getElementById('joystickArea').style.display = 'block';
-
-    // Initialize the game
+    playSound(bgMusic);
+    showElem('startBtn', false);
+    showElem('gameCanvas');
+    showElem('upgradesBtn');
+    showElem('joystickArea');
     init();
 });
 
@@ -346,21 +337,13 @@ const upgradesBtn = document.getElementById("upgradesBtn");
 const upgradeMenu = document.getElementById("upgradeMenu");
 const closeUpgradesBtn = document.getElementById("closeUpgradesBtn");
 
-// Hide upgrade menu by default
-if (upgradeMenu) {
-    upgradeMenu.style.display = "none";
-}
+if (upgradeMenu) upgradeMenu.style.display = "none";
 
 function toggleUpgradeMenu(show) {
-    if (show) {
-        isPaused = true;
-        if (upgradeMenu) upgradeMenu.style.display = "block";
-        if (upgradesBtn) upgradesBtn.style.display = "none";  // Hide Upgrade Button
-    } else {
-        isPaused = false;
-        if (upgradeMenu) upgradeMenu.style.display = "none";
-        if (upgradesBtn) upgradesBtn.style.display = "block";  // Show Upgrade Button
-        // Reset upgrade status
+    isPaused = !!show;
+    showElem("upgradeMenu", show);
+    showElem("upgradesBtn", !show);
+    if (!show) {
         const vacuumStatus = document.getElementById("vacuumStatus");
         const invincibleStatus = document.getElementById("invincibleStatus");
         if (vacuumStatus) vacuumStatus.textContent = "";
@@ -368,19 +351,8 @@ function toggleUpgradeMenu(show) {
     }
 }
 
-// Show the upgrade menu when the upgrades button is clicked
-if (upgradesBtn) {
-    upgradesBtn.addEventListener("click", () => {
-        toggleUpgradeMenu(true);
-    });
-}
-
-// Close the upgrade menu when the close button is clicked
-if (closeUpgradesBtn) {
-    closeUpgradesBtn.addEventListener("click", () => {
-        toggleUpgradeMenu(false);
-    });
-}
+if (upgradesBtn) upgradesBtn.addEventListener("click", () => toggleUpgradeMenu(true));
+if (closeUpgradesBtn) closeUpgradesBtn.addEventListener("click", () => toggleUpgradeMenu(false));
 
 // Vacuum Upgrade Functionality
 const vacuumUpgrade = document.getElementById("vacuumUpgrade");
@@ -391,18 +363,11 @@ if (vacuumUpgrade) {
             money -= vacuumCost;
             vacuumActive = true;
             vacuumTimer = 0;
-
-            // Play sound
-            if (vacuumSound) {
-                vacuumSound.currentTime = 0;
-                vacuumSound.play();
-            }
-
-            // Close the menu after upgrading
+            playSound(vacuumSound);
             toggleUpgradeMenu(false);
-            status.textContent = "";
+            if (status) status.textContent = "";
         } else {
-            status.textContent = "Not enough money!";
+            if (status) status.textContent = "Not enough money!";
         }
     });
 }
@@ -416,23 +381,15 @@ if (invincibleUpgrade) {
             money -= invincibleCost;
             invincible = true;
             invincibleTimer = 0;
-
-            // Play sound
-            if (truckSound) {
-                truckSound.currentTime = 0;
-                truckSound.play();
-            }
-
-            // Close the menu after upgrading
+            playSound(truckSound);
             toggleUpgradeMenu(false);
-            status.textContent = "";
+            if (status) status.textContent = "";
         } else {
-            status.textContent = "Not enough money!";
+            if (status) status.textContent = "Not enough money!";
         }
     });
 }
 
-// Update score and money display in the new HTML elements
 function updateScoreMoneyDisplay() {
     const scoreDisplay = document.getElementById('scoreDisplay');
     const moneyDisplay = document.getElementById('moneyDisplay');
@@ -440,7 +397,6 @@ function updateScoreMoneyDisplay() {
     if (moneyDisplay) moneyDisplay.textContent = `$: ${money}`;
 }
 
-// Modify gameLoop to update the score and money display
 function gameLoop() {
     if (!isPaused) updateGameLogic();
     renderGame();
@@ -450,12 +406,10 @@ function gameLoop() {
 
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-        // Page/tab is no longer visible — pause
         isPaused = true;
         bgMusic.pause();
     } else {
-        // Page/tab is visible again — resume
         isPaused = false;
-        bgMusic.play();
+        playSound(bgMusic);
     }
 });
