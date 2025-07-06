@@ -12,6 +12,7 @@ const playerFrames = [
     loadImage("assets/eyesClosed.png"),
     loadImage("assets/hurt.png")
 ];
+const truckImg = loadImage("assets/truck.png");
 const enemyImg = loadImage("assets/shannon.png");
 const coinImg = loadImage("assets/coin.png");
 const moneyBagImg = loadImage("assets/money.png");
@@ -167,6 +168,9 @@ function updateMoneyBag() {
         const dx = playerX - moneyBag.x, dy = playerY - moneyBag.y, dist = Math.hypot(dx, dy);
         if (dist < playerRadius + 20) {
             money += 100; score += 100; moneySound.play();
+            // Always trigger grow/bounce animation as with coin
+            animatePlayer([1,2,1,0]);
+            playerScale = 1.6; playerScaleVel = 1.0;
             moneyBag.active = false; moneyBagSpawnTimer = 0;
         }
     }
@@ -199,6 +203,9 @@ function updateEnemy() {
 
         if (invincible) {
             womanScream.play(); score += 250;
+            // Trigger grow/bounce animation as with coin or money bag
+            animatePlayer([1,2,1,0]);
+            playerScale = 1.6; playerScaleVel = 1.0;
         } else {
             enemyHitSound1.play(); currentFrame = 3;
             score -= 200; if (score < 0) score = 0;
@@ -222,7 +229,11 @@ function renderGame() {
 
     ctx.drawImage(coinImg, coinX - coinRadius, coinY - coinRadius, coinRadius*2, coinRadius*2);
     if (moneyBag.active) ctx.drawImage(moneyBagImg, moneyBag.x-20, moneyBag.y-20, 40, 40);
-    ctx.drawImage(playerFrames[currentFrame], playerX - playerRadius*playerScale, playerY - playerRadius*playerScale, playerRadius*2*playerScale, playerRadius*2*playerScale);
+    if (invincible) {
+        ctx.drawImage(truckImg, playerX - playerRadius*playerScale, playerY - playerRadius*playerScale, playerRadius*2*playerScale, playerRadius*2*playerScale);
+    } else {
+        ctx.drawImage(playerFrames[currentFrame], playerX - playerRadius*playerScale, playerY - playerRadius*playerScale, playerRadius*2*playerScale, playerRadius*2*playerScale);
+    }
     if (enemy.active) ctx.drawImage(enemyImg, enemy.x-enemySize/2, enemy.y-enemySize/2, enemySize, enemySize);
 }
 
@@ -315,7 +326,6 @@ document.getElementById('startBtn').addEventListener('click', () => {
 
     // Hide the start button once the game starts
     document.getElementById('startBtn').style.display = 'none';
-    document.getElementById('gameRules').style.display = 'none';
 
 
 
