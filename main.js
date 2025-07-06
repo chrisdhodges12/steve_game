@@ -446,3 +446,15 @@ function gameLoop() {
     updateScoreMoneyDisplay();
     requestAnimationFrame(gameLoop);
 }
+
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        // Page/tab is no longer visible — pause
+        isPaused = true;
+        bgMusic.pause();
+    } else {
+        // Page/tab is visible again — resume
+        isPaused = false;
+        bgMusic.play();
+    }
+});
