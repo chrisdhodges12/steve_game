@@ -21,22 +21,22 @@ const moneyBagImg = loadImage("assets/money.png");
 const bgMusic = loadAudio("assets/bg.mp3", 0.2, true);
 bgMusic.preload = 'auto';  // Preload background music
 
-const coinSound = loadAudio("assets/sniff.mp3", 0.5);
+const coinSound = loadAudio("assets/sniff.mp3", 0.3);
 coinSound.preload = 'auto';  // Preload coin sound
 
-const enemyHitSound1 = loadAudio("assets/yell1.mp3", 0.02);
+const enemyHitSound1 = loadAudio("assets/yell1.mp3", 0.3);
 enemyHitSound1.preload = 'auto';  // Preload enemy hit sound
 
 const moneySound = loadAudio("assets/moneySound.mp3", 0.4);
 moneySound.preload = 'auto';  // Preload money sound
 
-const womanScream = loadAudio("assets/womanScream.mp3", 0.05);
+const womanScream = loadAudio("assets/womanScream.mp3", 0.1);
 womanScream.preload = 'auto';  // Preload woman scream sound
 
-const truckSound = loadAudio("assets/truck.mp3", 0.1);
+const truckSound = loadAudio("assets/truck.mp3", 0.3);
 truckSound.preload = 'auto';  // Preload truck sound
 
-const vacuumSound = loadAudio("assets/vacuum.mp3", 0.1);
+const vacuumSound = loadAudio("assets/vacuum.mp3", 0.2);
 vacuumSound.preload = 'auto';  // Preload vacuum sound
 
 // Player
@@ -229,6 +229,7 @@ function renderGame() {
 
     ctx.drawImage(coinImg, coinX - coinRadius, coinY - coinRadius, coinRadius*2, coinRadius*2);
     if (moneyBag.active) ctx.drawImage(moneyBagImg, moneyBag.x-20, moneyBag.y-20, 40, 40);
+    // Draw player: truckImg when invincible, otherwise normal player frame
     if (invincible) {
         ctx.drawImage(truckImg, playerX - playerRadius*playerScale, playerY - playerRadius*playerScale, playerRadius*2*playerScale, playerRadius*2*playerScale);
     } else {
