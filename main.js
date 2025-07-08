@@ -314,7 +314,7 @@ joystickArea.addEventListener("touchmove", (e) => {
 });
 joystickArea.addEventListener("touchend", () => {
   isDragging = false;
-  setJoystickKnob(35, 35);
+  setJoystickKnob(30, 30);
   velX = 0;
   velY = 0;
   joystickInputX = 0;
@@ -332,9 +332,12 @@ function handleJoystickMove(touch) {
   const angle = Math.atan2(dy, dx);
   const offsetX = Math.cos(angle) * dist;
   const offsetY = Math.sin(angle) * dist;
-  setJoystickKnob(35 + offsetX, 35 + offsetY);
-  joystickInputX = (dist / maxDist) * Math.cos(angle);
-  joystickInputY = (dist / maxDist) * Math.sin(angle);
+  setJoystickKnob(30 + offsetX, 30 + offsetY);
+  joystickInputX = Math.cos(angle);
+  joystickInputY = Math.sin(angle);
+  const scale = dist / maxDist;
+  joystickInputX *= scale;
+  joystickInputY *= scale;
 }
 
 function setJoystickKnob(left, top) {
