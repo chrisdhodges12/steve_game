@@ -125,20 +125,25 @@ function updateGameLogic() {
 }
 
 function handlePlayerInput() {
-    if (keys.ArrowUp || keys.w) velY -= acceleration;
-    if (keys.ArrowDown || keys.s) velY += acceleration;
-    if (keys.ArrowLeft || keys.a) velX -= acceleration;
-    if (keys.ArrowRight || keys.d) velX += acceleration;
+    // dt scales relative to original 60fps (16.67ms), so at 30fps (33ms), dt ~2
+    const dt = 33 / 16.67;
 
-    // Make joystick X/Y feel equal speed (scale both by 0.8)
-    velX += joystickInputX * acceleration * 0.8;
-    velY += joystickInputY * acceleration * 0.8;
+    if (keys.ArrowUp || keys.w) velY -= acceleration * dt;
+    if (keys.ArrowDown || keys.s) velY += acceleration * dt;
+    if (keys.ArrowLeft || keys.a) velX -= acceleration * dt;
+    if (keys.ArrowRight || keys.d) velX += acceleration * dt;
 
-    velX *= friction; velY *= friction;
+    velX += joystickInputX * acceleration * dt * 0.8;
+    velY += joystickInputY * acceleration * dt * 0.8;
+
+    velX *= Math.pow(friction, dt);
+    velY *= Math.pow(friction, dt);
+
     velX = Math.max(-maxSpeed, Math.min(maxSpeed, velX));
     velY = Math.max(-maxSpeed, Math.min(maxSpeed, velY));
 
-    playerX += velX; playerY += velY;
+    playerX += velX;
+    playerY += velY;
 
     if (playerX - playerRadius < 0) { playerX = playerRadius; velX *= -0.5; }
     if (playerX + playerRadius > canvas.width) { playerX = canvas.width - playerRadius; velX *= -0.5; }
