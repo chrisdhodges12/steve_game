@@ -413,3 +413,11 @@ document.addEventListener('visibilitychange', () => {
         playSound(bgMusic);
     }
 });
+
+if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('Service Worker registered', reg))
+      .catch(err => console.error('Service Worker registration failed', err));
+  });
+}
