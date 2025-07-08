@@ -1,4 +1,4 @@
-// Inject CSS for scoreDisplay and moneyDisplay for proper sizing and padding
+// === Inject CSS for scoreDisplay and moneyDisplay ===
 const style = document.createElement('style');
 style.textContent = `
 #scoreDisplay, #moneyDisplay {
@@ -7,42 +7,56 @@ style.textContent = `
     padding: 2px 4px;
 }`;
 document.head.appendChild(style);
-// === DOM & Canvas ===
+
+// === DOM Elements & Canvas Context ===
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
+
+// === Helper: Show/Hide Multiple Elements ===
+function showElems(ids, show = true) {
+    ids.forEach(id => showElem(id, show));
+}
+
+// === Helper: Clear Text Content of Elements ===
+function clearText(...ids) {
+    ids.forEach(id => {
+        const elem = document.getElementById(id);
+        if (elem) elem.textContent = "";
+    });
+}
 
 // === Game State ===
 let isPaused = false;
 
-// === Assets ===
-const backgroundImg = loadImage("assets/background.jpg");
+// Hide certain UI elements initially
+showElems(['upgradesBtn', 'joystickArea', 'scoreMoneyContainer'], false);
+
+// === Asset Loading ===
+const backgroundImg = (() => {
+    const img = new Image(); img.src = "assets/background.jpg"; return img;
+})();
 const playerFrames = [
-    loadImage("assets/player.png"),
-    loadImage("assets/bloodshot.png"),
-    loadImage("assets/eyesClosed.png"),
-    loadImage("assets/hurt.png")
+    (() => { const i = new Image(); i.src = "assets/player.png"; return i; })(),
+    (() => { const i = new Image(); i.src = "assets/bloodshot.png"; return i; })(),
+    (() => { const i = new Image(); i.src = "assets/eyesClosed.png"; return i; })(),
+    (() => { const i = new Image(); i.src = "assets/hurt.png"; return i; })()
 ];
-const truckImg = loadImage("assets/truck.png");
-const enemyImg = loadImage("assets/shannon.png");
-const coinImg = loadImage("assets/coin.png");
-const moneyBagImg = loadImage("assets/money.png");
+const truckImg = (() => { const i = new Image(); i.src = "assets/truck.png"; return i; })();
+const enemyImg = (() => { const i = new Image(); i.src = "assets/shannon.png"; return i; })();
+const coinImg = (() => { const i = new Image(); i.src = "assets/coin.png"; return i; })();
+const moneyBagImg = (() => { const i = new Image(); i.src = "assets/money.png"; return i; })();
 
-// === Audio ===
-const bgMusic = loadAudio("assets/bg.mp3", 0.2, true);
-const coinSound = loadAudio("assets/sniff.mp3", 0.3);
-const enemyHitSound1 = loadAudio("assets/yell1.mp3", 0.3);
-const moneySound = loadAudio("assets/moneySound.wav", 0.4);
-const womanScream = loadAudio("assets/womanScream.mp3", 0.2);
-const truckSound = loadAudio("assets/truck.mp3", 0.3);
-const vacuumSound = loadAudio("assets/vacuum.mp3", 0.1);
-
-[bgMusic, coinSound, enemyHitSound1, moneySound, womanScream, truckSound, vacuumSound].forEach(audio => {
-    if (audio) audio.preload = 'auto';
-});
+// === Audio Assets ===
+const bgMusic = (() => { const a = new Audio("assets/bg.mp3"); a.volume = 0.2; a.loop = true; a.preload = 'auto'; return a; })();
+const coinSound = (() => { const a = new Audio("assets/sniff.mp3"); a.volume = 0.3; a.preload = 'auto'; return a; })();
+const enemyHitSound1 = (() => { const a = new Audio("assets/yell1.mp3"); a.volume = 0.3; a.preload = 'auto'; return a; })();
+const moneySound = (() => { const a = new Audio("assets/moneySound.wav"); a.volume = 0.4; a.preload = 'auto'; return a; })();
+const womanScream = (() => { const a = new Audio("assets/womanScream.mp3"); a.volume = 0.2; a.preload = 'auto'; return a; })();
+const truckSound = (() => { const a = new Audio("assets/truck.mp3"); a.volume = 0.3; a.preload = 'auto'; return a; })();
+const vacuumSound = (() => { const a = new Audio("assets/vacuum.mp3"); a.volume = 0.1; a.preload = 'auto'; return a; })();
 
 // === Player State ===
-let playerX = canvas.width / 2;
-let playerY = canvas.height / 2;
+let playerX = canvas.width / 2, playerY = canvas.height / 2;
 let playerRadius = 40;
 let velX = 0, velY = 0;
 const acceleration = 0.5, maxSpeed = 10, friction = 0.95;
@@ -64,8 +78,7 @@ let moneyBagSpawnTimer = 0;
 // === Enemy State ===
 const enemy = { x: 0, y: 0, vx: 0, vy: 0, active: false };
 const enemySize = 100;
-const topMargin = 80; // pixels reserved at top for UI
-const bottomMargin = 100; // pixels reserved at bottom for joystick
+const topMargin = 80, bottomMargin = 100;
 let enemyTimer = 0, nextEnemyTime = getNextEnemyTime();
 
 // === Upgrades State ===
@@ -76,28 +89,13 @@ const invincibleDuration = 9 * 60, invincibleCost = 100;
 
 // === Input State ===
 const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, w: false, a: false, s: false, d: false };
-let joystickInputX = 0;
-let joystickInputY = 0;
+let joystickInputX = 0, joystickInputY = 0;
 
 // Init
 function init() {
     spawnCoin();
     gameLoop();
     playSound(bgMusic);
-}
-
-// Utility functions
-function loadImage(src) {
-    const img = new Image();
-    img.src = src;
-    return img;
-}
-
-function loadAudio(src, volume = 0.5, loop = false) {
-    const audio = new Audio(src);
-    audio.volume = volume;
-    audio.loop = loop;
-    return audio;
 }
 
 function playSound(audio) {
@@ -236,17 +234,36 @@ function renderGame() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.drawImage(backgroundImg, 0, 0, canvas.width, canvas.height);
 
-    ctx.drawImage(coinImg, coinX - coinRadius, coinY - coinRadius, coinRadius*2, coinRadius*2);
-    if (moneyBag.active) ctx.drawImage(moneyBagImg, moneyBag.x-20, moneyBag.y-20, 40, 40);
-    // Draw player: truckImg when invincible, otherwise normal player frame
-    if (invincible)
-        ctx.drawImage(truckImg, playerX - playerRadius*playerScale, playerY - playerRadius*playerScale, playerRadius*2*playerScale, playerRadius*2*playerScale);
-    else
-        ctx.drawImage(playerFrames[currentFrame], playerX - playerRadius*playerScale, playerY - playerRadius*playerScale, playerRadius*2*playerScale, playerRadius*2*playerScale);
-    if (enemy.active) ctx.drawImage(enemyImg, enemy.x-enemySize/2, enemy.y-enemySize/2, enemySize, enemySize);
+    const isMobileTall = canvas.height > canvas.width;
+    const widthMultiplier = isMobileTall ? 1.5 : 1;
+
+    // Coin
+    const coinW = coinRadius * 2 * 2;
+    const coinH = coinRadius * 2;
+    ctx.drawImage(coinImg, coinX - coinW/2, coinY - coinH/2, coinW, coinH);
+
+    // Money Bag
+    if (moneyBag.active) {
+        const bagW = 40 * 2;
+        const bagH = 40;
+        ctx.drawImage(moneyBagImg, moneyBag.x - bagW/2, moneyBag.y - bagH/2, bagW, bagH);
+    }
+
+    // Player
+    const playerImg = invincible ? truckImg : playerFrames[currentFrame];
+    const playerWidth = playerRadius * 2 * playerScale * widthMultiplier;
+    const playerHeight = playerRadius * 2 * playerScale;
+    ctx.drawImage(playerImg, playerX - playerWidth/2, playerY - playerHeight/2, playerWidth, playerHeight);
+
+    // Enemy
+    if (enemy.active) {
+        const enemyW = enemySize * 1.0;
+        const enemyH = enemySize;
+        ctx.drawImage(enemyImg, enemy.x - enemyW/2, enemy.y - enemyH/2, enemyW, enemyH);
+    }
 }
 
-// Helpers
+// --- Helpers ---
 function spawnCoin() {
     const p = coinRadius + 10;
     coinX = Math.random() * (canvas.width - 2 * p) + p;
@@ -279,25 +296,22 @@ function getNextEnemyTime() {
     return Math.random()*30;
 }
 
-// Controls
+// --- Controls ---
 window.addEventListener("keydown", e => { if(e.key in keys) keys[e.key]=true; });
 window.addEventListener("keyup", e => { if(e.key in keys) keys[e.key]=false; });
 
 const joystickArea = document.getElementById("joystickArea");
 const joystickKnob = document.getElementById("joystickKnob");
-
 let isDragging = false;
 
 joystickArea.addEventListener("touchstart", (e) => {
   isDragging = true;
   handleJoystickMove(e.touches[0]);
 });
-
 joystickArea.addEventListener("touchmove", (e) => {
   if (!isDragging) return;
   handleJoystickMove(e.touches[0]);
 });
-
 joystickArea.addEventListener("touchend", () => {
   isDragging = false;
   setJoystickKnob(35, 35);
@@ -311,20 +325,14 @@ function handleJoystickMove(touch) {
   const rect = joystickArea.getBoundingClientRect();
   const centerX = rect.left + rect.width / 2;
   const centerY = rect.top + rect.height / 2;
-
   let dx = touch.clientX - centerX;
   let dy = touch.clientY - centerY;
-
   const maxDist = 40;
   const dist = Math.min(Math.sqrt(dx * dx + dy * dy), maxDist);
-
   const angle = Math.atan2(dy, dx);
-
   const offsetX = Math.cos(angle) * dist;
   const offsetY = Math.sin(angle) * dist;
-
   setJoystickKnob(35 + offsetX, 35 + offsetY);
-
   joystickInputX = (dist / maxDist) * Math.cos(angle);
   joystickInputY = (dist / maxDist) * Math.sin(angle);
 }
@@ -336,45 +344,37 @@ function setJoystickKnob(left, top) {
     }
 }
 
-// DOM helpers for UI show/hide
+// --- DOM helpers for UI show/hide ---
 function showElem(id, show = true) {
     const elem = document.getElementById(id);
     if (elem) elem.style.display = show ? 'block' : 'none';
 }
 
-// Start the game
+// --- Start the game ---
 document.getElementById('startBtn').addEventListener('click', () => {
     playSound(bgMusic);
-    showElem('startBtn', false);
-    showElem('gameCanvas');
-    showElem('upgradesBtn');
-    showElem('joystickArea');
+    showElems(['startBtn', 'gameRules'], false);
+    showElems(['gameCanvas', 'upgradesBtn', 'joystickArea', 'scoreMoneyContainer'], true);
     init();
 });
 
-// Upgrade menu functionality
+// --- Upgrade menu functionality ---
 const upgradesBtn = document.getElementById("upgradesBtn");
 const upgradeMenu = document.getElementById("upgradeMenu");
 const closeUpgradesBtn = document.getElementById("closeUpgradesBtn");
-
 if (upgradeMenu) upgradeMenu.style.display = "none";
 
 function toggleUpgradeMenu(show) {
     isPaused = !!show;
     showElem("upgradeMenu", show);
     showElem("upgradesBtn", !show);
-    if (!show) {
-        const vacuumStatus = document.getElementById("vacuumStatus");
-        const invincibleStatus = document.getElementById("invincibleStatus");
-        if (vacuumStatus) vacuumStatus.textContent = "";
-        if (invincibleStatus) invincibleStatus.textContent = "";
-    }
+    if (!show) clearText("vacuumStatus", "invincibleStatus");
 }
 
 if (upgradesBtn) upgradesBtn.addEventListener("click", () => toggleUpgradeMenu(true));
 if (closeUpgradesBtn) closeUpgradesBtn.addEventListener("click", () => toggleUpgradeMenu(false));
 
-// Vacuum Upgrade Functionality
+// --- Vacuum Upgrade Functionality ---
 const vacuumUpgrade = document.getElementById("vacuumUpgrade");
 if (vacuumUpgrade) {
     vacuumUpgrade.addEventListener("click", () => {
@@ -392,7 +392,7 @@ if (vacuumUpgrade) {
     });
 }
 
-// Invincible Upgrade Functionality
+// --- Invincible Upgrade Functionality ---
 const invincibleUpgrade = document.getElementById("invincibleUpgrade");
 if (invincibleUpgrade) {
     invincibleUpgrade.addEventListener("click", () => {
@@ -434,34 +434,30 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// Unified resize and center function for canvas and container
+// --- Unified resize and center function for canvas and container ---
 function resizeAndCenterCanvas() {
     const gameContainer = document.getElementById("gameContainer");
     if (!gameContainer) return;
-
-    if (window.innerWidth <= 600) {
-        // On mobile: fixed width, dynamic height capped at 1000px
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    if (viewportWidth <= 600) {
         canvas.width = 800;
-        canvas.height = Math.min(window.innerHeight - 50, 1000);
-
+        canvas.height = viewportHeight;
+        gameContainer.style.height = `${viewportHeight}px`;
         gameContainer.style.display = "flex";
         gameContainer.style.flexDirection = "column";
         gameContainer.style.justifyContent = "center";
         gameContainer.style.alignItems = "center";
-        gameContainer.style.height = "97vh";
     } else {
-        // On desktop
         canvas.width = 800;
         canvas.height = 600;
-
+        gameContainer.style.height = `600px`;
         gameContainer.style.display = "flex";
         gameContainer.style.flexDirection = "column";
         gameContainer.style.justifyContent = "center";
         gameContainer.style.alignItems = "center";
-        gameContainer.style.height = "100vh";
     }
-
-    // Center joystickArea horizontally at bottom of screen
+    // Center joystick
     const joystickArea = document.getElementById("joystickArea");
     if (joystickArea) {
         joystickArea.style.position = "absolute";
@@ -469,11 +465,9 @@ function resizeAndCenterCanvas() {
         joystickArea.style.bottom = "20px";
         joystickArea.style.transform = "translateX(-50%)";
     }
-
-    // Center upgradeMenu properly on screen
+    // Position upgrade menu if needed
     const upgradeMenu = document.getElementById("upgradeMenu");
     if (upgradeMenu) {
-        upgradeMenu.style.position = "absolute";
         upgradeMenu.style.top = "50%";
         upgradeMenu.style.left = "50%";
         upgradeMenu.style.transform = "translate(-50%, -50%)";

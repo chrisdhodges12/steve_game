@@ -29,14 +29,14 @@
 #scoreDisplay {
     font-size: 32px;
     font-weight: bold;
-    color: #4CAF50;  /* Green for score */
+    color: #FFEB3B;  /* Green for score */
 }
 
 /* Money styling */
 #moneyDisplay {
     font-size: 28px;
     font-weight: bold;
-    color: #FFEB3B;  /* Yellow for money */
+    color: #4CAF50;  /* Yellow for money */
 }
 
 /* Start button (centered on the start screen) */
@@ -296,7 +296,7 @@
     }
 
     #upgradesBtn {
-        font-size: 14px;
+        font-size: 18px;
         padding: 8px 12px;
     }
 
@@ -310,8 +310,8 @@
     }
 
     .upgrade img {
-        width: 80px;
-        height: 80px;
+        width: 90px;
+        height: 90px;
     }
 
     #joystickArea {
@@ -326,6 +326,14 @@
         height: 40px;
         top: 30px;
         left: 30px;
+    }
+
+    #scoreDisplay {
+        font-size: 36px;
+    }
+
+    #moneyDisplay {
+        font-size: 32px;
     }
 }
 
@@ -367,4 +375,11 @@ body,
   -o-user-drag: none;
   -ms-user-drag: none;
   -webkit-user-drag: none;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
 }
