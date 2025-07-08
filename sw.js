@@ -1,4 +1,4 @@
-const CACHE_NAME = 'steve-game-v2';
+const CACHE_NAME = 'steve-game-v3';
 
 // Files to cache
 const ASSETS = [
