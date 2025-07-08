@@ -1,3 +1,12 @@
+// Inject CSS for scoreDisplay and moneyDisplay for proper sizing and padding
+const style = document.createElement('style');
+style.textContent = `
+#scoreDisplay, #moneyDisplay {
+    font-size: 16px;
+    margin: 2px 0;
+    padding: 2px 4px;
+}`;
+document.head.appendChild(style);
 // === DOM & Canvas ===
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
@@ -55,6 +64,8 @@ let moneyBagSpawnTimer = 0;
 // === Enemy State ===
 const enemy = { x: 0, y: 0, vx: 0, vy: 0, active: false };
 const enemySize = 100;
+const topMargin = 80; // pixels reserved at top for UI
+const bottomMargin = 100; // pixels reserved at bottom for joystick
 let enemyTimer = 0, nextEnemyTime = getNextEnemyTime();
 
 // === Upgrades State ===
@@ -65,6 +76,8 @@ const invincibleDuration = 9 * 60, invincibleCost = 100;
 
 // === Input State ===
 const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, w: false, a: false, s: false, d: false };
+let joystickInputX = 0;
+let joystickInputY = 0;
 
 // Init
 function init() {
@@ -106,6 +119,9 @@ function handlePlayerInput() {
     if (keys.ArrowDown || keys.s) velY += acceleration;
     if (keys.ArrowLeft || keys.a) velX -= acceleration;
     if (keys.ArrowRight || keys.d) velX += acceleration;
+
+    velX += joystickInputX * acceleration;
+    velY += joystickInputY * acceleration;
 
     velX *= friction; velY *= friction;
     velX = Math.max(-maxSpeed, Math.min(maxSpeed, velX));
@@ -167,6 +183,7 @@ function updateMoneyBag() {
         if (dist < playerRadius + 20) {
             money += 100; score += 100; playSound(moneySound);
             animateBounce();
+            currentFrame = 0;
             moneyBag.active = false; moneyBagSpawnTimer = 0;
         }
     }
@@ -232,16 +249,17 @@ function renderGame() {
 // Helpers
 function spawnCoin() {
     const p = coinRadius + 10;
-    coinX = Math.random() * (canvas.width-2*p) + p;
-    coinY = Math.random() * (canvas.height-2*p) + p;
+    coinX = Math.random() * (canvas.width - 2 * p) + p;
+    coinY = Math.random() * (canvas.height - 2 * p - topMargin - bottomMargin) + (p + topMargin);
     coinTimer = 0;
 }
 
 function spawnMoneyBag() {
     const p = 20;
-    moneyBag.x = Math.random() * (canvas.width-2*p) + p;
-    moneyBag.y = Math.random() * (canvas.height-2*p) + p;
-    moneyBag.active = true; moneyBag.timer = 0;
+    moneyBag.x = Math.random() * (canvas.width - 2 * p) + p;
+    moneyBag.y = Math.random() * (canvas.height - 2 * p - topMargin - bottomMargin) + (p + topMargin);
+    moneyBag.active = true;
+    moneyBag.timer = 0;
 }
 
 function spawnEnemy() {
@@ -285,6 +303,8 @@ joystickArea.addEventListener("touchend", () => {
   setJoystickKnob(35, 35);
   velX = 0;
   velY = 0;
+  joystickInputX = 0;
+  joystickInputY = 0;
 });
 
 function handleJoystickMove(touch) {
@@ -305,8 +325,8 @@ function handleJoystickMove(touch) {
 
   setJoystickKnob(35 + offsetX, 35 + offsetY);
 
-  velX = Math.cos(angle) * (dist / maxDist) * maxSpeed;
-  velY = Math.sin(angle) * (dist / maxDist) * maxSpeed;
+  joystickInputX = (dist / maxDist) * Math.cos(angle);
+  joystickInputY = (dist / maxDist) * Math.sin(angle);
 }
 
 function setJoystickKnob(left, top) {
@@ -414,6 +434,54 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
+// Unified resize and center function for canvas and container
+function resizeAndCenterCanvas() {
+    const gameContainer = document.getElementById("gameContainer");
+    if (!gameContainer) return;
+
+    if (window.innerWidth <= 600) {
+        // On mobile: fixed width, dynamic height capped at 1000px
+        canvas.width = 800;
+        canvas.height = Math.min(window.innerHeight - 50, 1000);
+
+        gameContainer.style.display = "flex";
+        gameContainer.style.flexDirection = "column";
+        gameContainer.style.justifyContent = "center";
+        gameContainer.style.alignItems = "center";
+        gameContainer.style.height = "97vh";
+    } else {
+        // On desktop
+        canvas.width = 800;
+        canvas.height = 600;
+
+        gameContainer.style.display = "flex";
+        gameContainer.style.flexDirection = "column";
+        gameContainer.style.justifyContent = "center";
+        gameContainer.style.alignItems = "center";
+        gameContainer.style.height = "100vh";
+    }
+
+    // Center joystickArea horizontally at bottom of screen
+    const joystickArea = document.getElementById("joystickArea");
+    if (joystickArea) {
+        joystickArea.style.position = "absolute";
+        joystickArea.style.left = "50%";
+        joystickArea.style.bottom = "20px";
+        joystickArea.style.transform = "translateX(-50%)";
+    }
+
+    // Center upgradeMenu properly on screen
+    const upgradeMenu = document.getElementById("upgradeMenu");
+    if (upgradeMenu) {
+        upgradeMenu.style.position = "absolute";
+        upgradeMenu.style.top = "50%";
+        upgradeMenu.style.left = "50%";
+        upgradeMenu.style.transform = "translate(-50%, -50%)";
+    }
+}
+
+window.addEventListener('resize', resizeAndCenterCanvas);
+resizeAndCenterCanvas();
 if ('serviceWorker' in navigator && location.hostname !== 'localhost') {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('/sw.js')
