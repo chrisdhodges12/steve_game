@@ -28,6 +28,17 @@ function clearText(...ids) {
 // === Game State ===
 let isPaused = false;
 
+// === Timer and Frame Management ===
+let lastFrameTime = 0;
+let vacuumStartTime = 0;
+let invincibleStartTime = 0;
+let moneyBagStartTime = 0;
+let coinSpawnTime = 0;
+const vacuumDurationMs = 7000;
+const invincibleDurationMs = 9000;
+const moneyBagLifetimeMs = 2000;
+const coinLifetimeMs = 4500;
+
 // Hide certain UI elements initially
 showElems(['upgradesBtn', 'joystickArea', 'scoreMoneyContainer'], false);
 
@@ -68,11 +79,11 @@ const frameInterval = 20;
 
 // === Coin State ===
 let coinX = 0, coinY = 0, coinTimer = 0;
-const coinRadius = 15, coinLifetime = 4.5 * 60;
+const coinRadius = 15;
 
 // === Money Bag State ===
 const moneyBag = { x: 0, y: 0, active: false, timer: 0 };
-const moneyBagSpawnInterval = 200, moneyBagLifetime = 100;
+const moneyBagSpawnInterval = 200;
 let moneyBagSpawnTimer = 0;
 
 // === Enemy State ===
@@ -83,9 +94,9 @@ let enemyTimer = 0, nextEnemyTime = getNextEnemyTime();
 
 // === Upgrades State ===
 let vacuumActive = false, vacuumTimer = 0;
-const vacuumDuration = 7 * 60, vacuumCost = 100;
+const vacuumCost = 100;
 let invincible = false, invincibleTimer = 0;
-const invincibleDuration = 9 * 60, invincibleCost = 100;
+const invincibleCost = 100;
 
 // === Input State ===
 const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false, w: false, a: false, s: false, d: false };
@@ -94,7 +105,8 @@ let joystickInputX = 0, joystickInputY = 0;
 // Init
 function init() {
     spawnCoin();
-    gameLoop();
+    coinSpawnTime = Date.now();
+    gameLoop(performance.now());
     playSound(bgMusic);
 }
 
@@ -118,8 +130,9 @@ function handlePlayerInput() {
     if (keys.ArrowLeft || keys.a) velX -= acceleration;
     if (keys.ArrowRight || keys.d) velX += acceleration;
 
-    velX += joystickInputX * acceleration;
-    velY += joystickInputY * acceleration;
+    // Make joystick X/Y feel equal speed (scale both by 0.8)
+    velX += joystickInputX * acceleration * 0.8;
+    velY += joystickInputY * acceleration * 0.8;
 
     velX *= friction; velY *= friction;
     velX = Math.max(-maxSpeed, Math.min(maxSpeed, velX));
@@ -134,8 +147,8 @@ function handlePlayerInput() {
 }
 
 function updateCoin() {
-    coinTimer++;
-    if (coinTimer >= coinLifetime) spawnCoin();
+    // Use real-time timer for coin
+    if (Date.now() - coinSpawnTime >= coinLifetimeMs) spawnCoin();
 
     const dx = playerX - coinX, dy = playerY - coinY, dist = Math.hypot(dx, dy);
     if (vacuumActive && dist > 1) {
@@ -173,7 +186,7 @@ function updatePlayerScaleBounce() {
 function updateMoneyBag() {
     if (!moneyBag.active) {
         if (++moneyBagSpawnTimer > moneyBagSpawnInterval) spawnMoneyBag();
-    } else if (++moneyBag.timer > moneyBagLifetime) {
+    } else if (moneyBag.active && Date.now() - moneyBagStartTime >= moneyBagLifetimeMs) {
         moneyBag.active = false; moneyBagSpawnTimer = 0;
     }
     if (moneyBag.active) {
@@ -225,8 +238,8 @@ function updateEnemy() {
 }
 
 function updateUpgrades() {
-    if (vacuumActive && ++vacuumTimer >= vacuumDuration) vacuumActive = false;
-    if (invincible && ++invincibleTimer >= invincibleDuration) invincible = false;
+    if (vacuumActive && Date.now() - vacuumStartTime >= vacuumDurationMs) vacuumActive = false;
+    if (invincible && Date.now() - invincibleStartTime >= invincibleDurationMs) invincible = false;
 }
 
 // Render
@@ -269,6 +282,7 @@ function spawnCoin() {
     coinX = Math.random() * (canvas.width - 2 * p) + p;
     coinY = Math.random() * (canvas.height - 2 * p - topMargin - bottomMargin) + (p + topMargin);
     coinTimer = 0;
+    coinSpawnTime = Date.now();
 }
 
 function spawnMoneyBag() {
@@ -277,6 +291,7 @@ function spawnMoneyBag() {
     moneyBag.y = Math.random() * (canvas.height - 2 * p - topMargin - bottomMargin) + (p + topMargin);
     moneyBag.active = true;
     moneyBag.timer = 0;
+    moneyBagStartTime = Date.now();
 }
 
 function spawnEnemy() {
@@ -314,7 +329,7 @@ joystickArea.addEventListener("touchmove", (e) => {
 });
 joystickArea.addEventListener("touchend", () => {
   isDragging = false;
-  setJoystickKnob(30, 30);
+  setJoystickKnob(25, 25);
   velX = 0;
   velY = 0;
   joystickInputX = 0;
@@ -332,7 +347,7 @@ function handleJoystickMove(touch) {
   const angle = Math.atan2(dy, dx);
   const offsetX = Math.cos(angle) * dist;
   const offsetY = Math.sin(angle) * dist;
-  setJoystickKnob(30 + offsetX, 30 + offsetY);
+  setJoystickKnob(25 + offsetX, 25 + offsetY);
   joystickInputX = Math.cos(angle);
   joystickInputY = Math.sin(angle);
   const scale = dist / maxDist;
@@ -386,6 +401,7 @@ if (vacuumUpgrade) {
             money -= vacuumCost;
             vacuumActive = true;
             vacuumTimer = 0;
+            vacuumStartTime = Date.now();
             playSound(vacuumSound);
             toggleUpgradeMenu(false);
             if (status) status.textContent = "";
@@ -404,6 +420,7 @@ if (invincibleUpgrade) {
             money -= invincibleCost;
             invincible = true;
             invincibleTimer = 0;
+            invincibleStartTime = Date.now();
             playSound(truckSound);
             toggleUpgradeMenu(false);
             if (status) status.textContent = "";
@@ -420,7 +437,13 @@ function updateScoreMoneyDisplay() {
     if (moneyDisplay) moneyDisplay.textContent = `$: ${money}`;
 }
 
-function gameLoop() {
+function gameLoop(timestamp) {
+    // Cap FPS to ~30 by skipping frames, but timers are real-time
+    if (timestamp - lastFrameTime < 33) {
+        requestAnimationFrame(gameLoop);
+        return;
+    }
+    lastFrameTime = timestamp;
     if (!isPaused) updateGameLogic();
     renderGame();
     updateScoreMoneyDisplay();
