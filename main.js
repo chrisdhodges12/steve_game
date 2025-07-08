@@ -2,7 +2,7 @@
 const style = document.createElement('style');
 style.textContent = `
 #scoreDisplay, #moneyDisplay {
-    font-size: 16px;
+    font-size: 20px;
     margin: 2px 0;
     padding: 2px 4px;
 }`;
@@ -50,10 +50,10 @@ const moneyBagImg = (() => { const i = new Image(); i.src = "assets/money.png"; 
 const bgMusic = (() => { const a = new Audio("assets/bg.mp3"); a.volume = 0.2; a.loop = true; a.preload = 'auto'; return a; })();
 const coinSound = (() => { const a = new Audio("assets/sniff.mp3"); a.volume = 0.3; a.preload = 'auto'; return a; })();
 const enemyHitSound1 = (() => { const a = new Audio("assets/yell1.mp3"); a.volume = 0.3; a.preload = 'auto'; return a; })();
-const moneySound = (() => { const a = new Audio("assets/moneySound.wav"); a.volume = 0.4; a.preload = 'auto'; return a; })();
+const moneySound = (() => { const a = new Audio("assets/moneySound.wav"); a.volume = 0.3; a.preload = 'auto'; return a; })();
 const womanScream = (() => { const a = new Audio("assets/womanScream.mp3"); a.volume = 0.2; a.preload = 'auto'; return a; })();
 const truckSound = (() => { const a = new Audio("assets/truck.mp3"); a.volume = 0.3; a.preload = 'auto'; return a; })();
-const vacuumSound = (() => { const a = new Audio("assets/vacuum.mp3"); a.volume = 0.1; a.preload = 'auto'; return a; })();
+const vacuumSound = (() => { const a = new Audio("assets/vacuum.mp3"); a.volume = 0.03; a.preload = 'auto'; return a; })();
 
 // === Player State ===
 let playerX = canvas.width / 2, playerY = canvas.height / 2;
@@ -68,7 +68,7 @@ const frameInterval = 20;
 
 // === Coin State ===
 let coinX = 0, coinY = 0, coinTimer = 0;
-const coinRadius = 15, coinLifetime = 4 * 60;
+const coinRadius = 15, coinLifetime = 4.5 * 60;
 
 // === Money Bag State ===
 const moneyBag = { x: 0, y: 0, active: false, timer: 0 };
@@ -83,7 +83,7 @@ let enemyTimer = 0, nextEnemyTime = getNextEnemyTime();
 
 // === Upgrades State ===
 let vacuumActive = false, vacuumTimer = 0;
-const vacuumDuration = 8 * 60, vacuumCost = 100;
+const vacuumDuration = 7 * 60, vacuumCost = 100;
 let invincible = false, invincibleTimer = 0;
 const invincibleDuration = 9 * 60, invincibleCost = 100;
 
@@ -139,7 +139,7 @@ function updateCoin() {
 
     const dx = playerX - coinX, dy = playerY - coinY, dist = Math.hypot(dx, dy);
     if (vacuumActive && dist > 1) {
-        const pull = 5;
+        const pull = 4;
         coinX += (dx / dist) * pull;
         coinY += (dy / dist) * pull;
     }
@@ -443,7 +443,7 @@ function resizeAndCenterCanvas() {
     if (viewportWidth <= 600) {
         canvas.width = 800;
         canvas.height = viewportHeight;
-        gameContainer.style.height = `${viewportHeight}px`;
+        gameContainer.style.height = `${viewportHeight * 0.9}px`;
         gameContainer.style.display = "flex";
         gameContainer.style.flexDirection = "column";
         gameContainer.style.justifyContent = "center";

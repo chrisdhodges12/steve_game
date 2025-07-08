@@ -285,7 +285,7 @@
 @media (max-width: 600px) {
     #gameContainer {
         width: 100%;
-        height: 100%;
+        height: 90%;
        background-size: 100% 100%;
     }
 
